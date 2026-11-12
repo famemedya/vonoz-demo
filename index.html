@@ -6,7 +6,8 @@
 <title>Vonoz Countryside Hotel</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Gloock&family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Gloock&family=Noto+Naskh+Arabic:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
 <style>
 /* Layout idea: one living landscape stays fixed behind the whole page and follows the real hour in Yomra;
    the page opens by flying through the glass letters of the logo, and everything readable sits on liquid-glass panes.
@@ -18,8 +19,10 @@
   --charcoal: #2c3033;     /* brand secondary */
   --paper: #edf0f2;        /* brand light */
   --mist: #c9d5cf;         /* secondary text on glass */
-  --lamp: #e6bd7c;         /* the only accent: window light */
-  --display: "Gloock", "Calisga", "Playfair Display", Georgia, serif;
+  --lamp: #e6bd7c;         /* window light */
+  --wood: #8a5a36;         /* cedar: the warmth of the bungalows */
+  --wood-deep: #3d2616;
+  --display: "Gloock", "Calisga", "PT Serif", Georgia, serif;
   --body: "PT Serif", Georgia, "Times New Roman", serif;
   --gutter: clamp(18px, 5vw, 72px);
   --ease: cubic-bezier(.2, .7, .1, 1);
@@ -109,15 +112,16 @@ p { margin: 0; }
 /* ---------- Navigation ---------- */
 .nav {
   position: fixed; z-index: 20; top: 16px; left: 50%; transform: translateX(-50%);
-  width: min(100% - 2 * var(--gutter), 1120px);
+  width: min(100% - 2 * var(--gutter), 900px);
   display: flex; align-items: center; justify-content: space-between; gap: 16px;
-  padding: 8px 8px 8px 22px; border-radius: 999px;
+  padding: 8px; padding-inline-start: 22px; border-radius: 999px;
 }
 .nav .logo-mark { width: 44px; }
 .nav-home { display: block; }
 .nav-links { display: flex; align-items: center; gap: clamp(14px, 3vw, 34px); }
 .nav-links a { text-decoration: none; }
 .nav-links a:not(.btn):hover { color: var(--lamp); }
+.nav-links .btn { white-space: nowrap; }
 
 .btn {
   position: relative; overflow: hidden;
@@ -128,8 +132,8 @@ p { margin: 0; }
 }
 .btn:active { transform: scale(.97); }
 .btn.solid {
-  background: var(--paper); color: #1b2f2b; border: 1px solid #fff;
-  box-shadow: inset 0 1px 0 #fff, 0 10px 30px -8px rgba(237, 240, 242, .45);
+  background: linear-gradient(180deg, #f1d3a2, #d9a868); color: var(--wood-deep); border: 1px solid #f6dfb9;
+  box-shadow: inset 0 1px 0 #fbeacb, 0 10px 30px -8px rgba(230, 189, 124, .55);
 }
 .btn.solid::after { /* slow sheen */
   content: ""; position: absolute; top: 0; bottom: 0; left: -60%; width: 45%;
@@ -137,46 +141,83 @@ p { margin: 0; }
   transform: skewX(-18deg); animation: sheen 6s ease-in-out infinite;
 }
 @keyframes sheen { 0%, 70% { left: -60%; } 100% { left: 130%; } }
-.btn.solid:hover { background: var(--lamp); border-color: #f4d7a6; box-shadow: inset 0 1px 0 #f8e3bd, 0 12px 34px -8px rgba(230, 189, 124, .6); }
+.btn.solid:hover { background: linear-gradient(180deg, #f7dfb6, #e3b574); box-shadow: inset 0 1px 0 #fdf1da, 0 14px 38px -8px rgba(230, 189, 124, .75); }
 .btn.glass:hover { background-color: rgba(237, 240, 242, .2); }
+
+.lang { position: relative; }
+.lang-btn {
+  display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font: inherit; color: var(--paper);
+  padding: 12px 14px; border-radius: 999px; background: rgba(237, 240, 242, .08); border: 1px solid rgba(237, 240, 242, .22);
+  transition: background .3s;
+}
+.lang-btn:hover, .lang-btn[aria-expanded="true"] { background: rgba(237, 240, 242, .18); }
+.lang-btn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+.lang-menu {
+  position: absolute; top: calc(100% + 14px); inset-inline-end: 0; min-width: 180px; padding: 8px; border-radius: 24px;
+  display: grid; gap: 2px; background-color: rgba(9, 20, 17, .82);
+  opacity: 0; visibility: hidden; transform: translateY(-8px) scale(.97); transform-origin: top;
+  transition: opacity .3s var(--ease), transform .35s var(--ease), visibility .3s;
+}
+.lang.open .lang-menu { opacity: 1; visibility: visible; transform: none; }
+.lang-menu button {
+  display: flex; justify-content: space-between; align-items: center; gap: 16px; width: 100%; cursor: pointer;
+  font-family: var(--body); font-size: 1rem; letter-spacing: 0; text-transform: none; font-weight: 400; color: var(--paper);
+  padding: 10px 14px; border-radius: 16px; background: none; border: 1px solid transparent; text-align: start;
+}
+.lang-menu button:hover { background: rgba(237, 240, 242, .1); }
+.lang-menu button[aria-current="true"] { background: rgba(237, 240, 242, .16); border-color: rgba(255, 255, 255, .3); }
+.lang-menu small { color: var(--mist); font-size: .7rem; letter-spacing: .14em; }
+
+/* Arabic: its own typefaces, no tracking (it would break the joined letters) */
+html[lang="ar"] { --display: "Amiri", "Noto Naskh Arabic", serif; --body: "Noto Naskh Arabic", "Amiri", serif; }
+html[lang="ar"] .label { letter-spacing: 0; font-size: .86rem; }
+html[lang="ar"] .hero h1, html[lang="ar"] .book h2 { line-height: 1.4; letter-spacing: 0; }
+html[lang="ar"] .count span { font-size: .74rem; letter-spacing: 0; }
+html[lang="ar"] .intro-sub .label { letter-spacing: .42em; font-size: .62rem; }
+[dir="rtl"] .field input[type="tel"], [dir="rtl"] .field input[type="date"] { direction: ltr; text-align: right; }
 
 /* ---------- Hero ---------- */
 .hero {
   min-height: 100vh; min-height: 100svh;
-  display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-start;
-  padding: 120px var(--gutter) clamp(28px, 6vh, 64px);
+  display: flex; flex-direction: column; justify-content: flex-end; align-items: center;
+  padding: 120px var(--gutter) clamp(32px, 8vh, 88px);
 }
-.hero-panel { display: grid; gap: 18px; width: min(100%, 560px); padding: clamp(22px, 3vw, 36px); border-radius: 36px; }
-.hero-meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 18px; color: var(--mist); }
+.hero-panel {
+  display: grid; gap: 22px; justify-items: center; text-align: center;
+  width: min(100%, 760px); padding: clamp(24px, 4vw, 48px) clamp(20px, 4vw, 56px); border-radius: 40px;
+}
+.hero-meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 26px; color: var(--mist); }
 .status { display: inline-flex; align-items: center; gap: 10px; color: var(--paper); }
 .status i { width: 8px; height: 8px; border-radius: 50%; background: var(--lamp); box-shadow: 0 0 0 0 rgba(230, 189, 124, .6); animation: lamp 2.6s ease-out infinite; }
 @keyframes lamp { to { box-shadow: 0 0 0 12px rgba(230, 189, 124, 0); } }
 .clock { font-variant-numeric: tabular-nums; }
-.hero h1 { font-size: clamp(2.3rem, 5vw, 3.9rem); line-height: 1.04; }
-.hero-sub { color: #e3e9e6; max-width: 44ch; }
-.count { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.hero h1 { width: 100%; white-space: nowrap; font-size: clamp(1.9rem, 6.4vw, 4.6rem); line-height: 1.08; }   /* always one line; script shrinks it to fit */
+.hero-sub { color: #e3e9e6; max-width: 46ch; }
+.count { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: min(100%, 520px); }
 .count div {
   display: grid; gap: 2px; justify-items: center; padding: 14px 4px 11px; border-radius: 20px;
-  background: rgba(6, 13, 12, .42); border: 1px solid rgba(237, 240, 242, .14); box-shadow: inset 0 1px 6px rgba(3, 8, 7, .4);
+  background:
+    linear-gradient(180deg, rgba(255, 226, 180, .16), rgba(30, 16, 8, .28)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='140'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.007 .24' numOctaves='3' seed='11'/%3E%3CfeColorMatrix values='0 0 0 0 .2 0 0 0 0 .11 0 0 0 0 .05 -1.9 0 0 0 1.3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' fill='%238a5a36'/%3E%3Crect width='100%25' height='100%25' filter='url(%23w)'/%3E%3C/svg%3E") center / cover,
+    var(--wood);
+  border: 1px solid rgba(255, 220, 170, .28);
+  box-shadow: inset 0 1px 0 rgba(255, 232, 196, .4), inset 0 -8px 16px rgba(30, 16, 8, .35), 0 10px 22px -10px rgba(3, 8, 7, .8);
 }
+.count div:nth-child(2) { background-position: 30% 70%, 30% 70%, center; }
+.count div:nth-child(3) { background-position: 70% 20%, 70% 20%, center; }
+.count div:nth-child(4) { background-position: 100% 90%, 100% 90%, center; }
+.count b { color: #fbeeda; text-shadow: 0 -1px 0 rgba(30, 16, 8, .7), 0 1px 0 rgba(255, 232, 196, .25); }
 .count b { font-family: var(--display); font-weight: 400; font-size: clamp(1.7rem, 4vw, 2.5rem); line-height: 1; font-variant-numeric: tabular-nums; }
-.count span { color: var(--mist); font-size: .6rem; letter-spacing: .2em; }
-.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
+.count span { color: #f0dcc0; font-size: .6rem; letter-spacing: .2em; }
+.hero-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 4px; }
 
 /* ---------- Reservation ---------- */
-.book { padding: clamp(64px, 11vh, 130px) var(--gutter) 0; }
-.book-grid {
-  display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 6fr); gap: clamp(24px, 4vw, 64px);
-  max-width: 1160px; margin: 0 auto; align-items: start;
-}
-.book-intro { display: grid; gap: 16px; padding: clamp(22px, 3vw, 34px); border-radius: 32px; }
-.book-intro .label { color: var(--mist); }
-.book h2 { font-size: clamp(2.2rem, 4.4vw, 3.6rem); line-height: 1.04; }
-.book-lede { color: #e3e9e6; }
-
-.card { border-radius: 36px; padding: clamp(20px, 3.4vw, 40px); }
-.card-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; min-height: 36px; }
-.card-head h3 { font-size: 1.55rem; }
+.book { padding: clamp(56px, 10vh, 120px) var(--gutter) 0; }
+.card { max-width: 900px; margin: 0 auto; border-radius: 40px; padding: clamp(22px, 4vw, 52px); }
+.card-top { display: grid; gap: 14px; justify-items: center; text-align: center; margin-bottom: clamp(24px, 4vw, 38px); }
+.card-top .label { color: var(--mist); }
+.book h2 { font-size: clamp(2.2rem, 4.6vw, 3.6rem); line-height: 1.06; }
+.book-lede { color: #e3e9e6; max-width: 46ch; }
 .nights {
   font-variant-numeric: tabular-nums; font-size: .9rem; white-space: nowrap;
   padding: 7px 14px; border-radius: 999px; background: rgba(230, 189, 124, .16); border: 1px solid rgba(230, 189, 124, .45); color: #f3d9ad;
@@ -211,7 +252,8 @@ form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   border-color: rgba(255, 255, 255, .4); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5), 0 4px 14px rgba(3, 8, 7, .4);
 }
 .seg input:focus-visible + label { outline: 2px solid var(--lamp); outline-offset: 2px; }
-.submit { grid-column: 1 / -1; width: 100%; padding: 18px 24px; margin-top: 6px; font-size: .76rem; }
+.form-foot { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; margin-top: 8px; }
+.submit { flex: 1 1 260px; max-width: 360px; margin-inline-start: auto; padding: 18px 28px; font-size: .76rem; }
 .form-msg { grid-column: 1 / -1; border-radius: 20px; padding: 16px 20px; background: rgba(230, 189, 124, .12); border: 1px solid rgba(230, 189, 124, .4); }
 .form-msg[hidden] { display: none; }
 .form-msg small { display: block; color: var(--mist); font-size: .9rem; margin-top: 4px; }
@@ -222,7 +264,7 @@ form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 10px;
   padding: 10px; border-radius: 40px; max-width: 100%;
 }
-.dock-item { display: inline-flex; align-items: center; gap: 12px; padding: 10px 20px 10px 12px; border-radius: 999px; text-decoration: none; }
+.dock-item { display: inline-flex; align-items: center; gap: 12px; padding: 10px 12px; padding-inline-end: 20px; border-radius: 999px; text-decoration: none; }
 a.dock-item:hover { background: rgba(237, 240, 242, .1); }
 .dock-item .ico, .dock-social a {
   display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; flex: none;
@@ -236,6 +278,8 @@ a.dock-item:hover { background: rgba(237, 240, 242, .1); }
 .dock-text small { color: var(--mist); font-size: .8rem; }
 .dock-sep { width: 1px; height: 34px; background: rgba(237, 240, 242, .2); }
 .dock-social { display: flex; gap: 8px; padding: 0 4px; }
+.dock-social i { font-size: 19px; line-height: 1; font-style: normal; }
+:where(.dock-social) i::before { content: attr(data-fb); font-size: 13px; font-weight: 700; }   /* shown only if the icon font cannot load */
 .dock-social a { position: relative; color: var(--paper); transition: transform .35s var(--ease), background .3s, color .3s; }
 .dock-social a:hover { transform: translateY(-6px) scale(1.12); color: var(--lamp); }
 .dock-social a::after {
@@ -254,14 +298,16 @@ footer .logo-vonoz { width: min(46vw, 210px); color: var(--paper); animation: br
 }
 
 @media (max-width: 860px) {
-  .book-grid { grid-template-columns: 1fr; }
   .dock-sep { display: none; }
 }
 @media (max-width: 560px) {
   .nav-links a:not(.btn) { display: none; }
-  .nav { padding-left: 18px; }
+  .nav { padding-inline-start: 18px; }
+  .nav .btn { padding: 13px 16px; }
   form { grid-template-columns: 1fr; }
-  .card, .hero-panel, .book-intro { border-radius: 28px; }
+  .card, .hero-panel { border-radius: 30px; }
+  .submit { max-width: none; }
+  .count { gap: 6px; }
   .dock { border-radius: 30px; flex-direction: column; align-items: stretch; }
   .dock-social { justify-content: center; padding: 6px 0 4px; }
 }
@@ -297,57 +343,65 @@ setTimeout(window.__show, 7000);
 <nav class="nav glass enter" aria-label="Ana menü">
   <a class="nav-home" href="#top" aria-label="Vonoz ana sayfa"><span class="logo-mark"></span></a>
   <div class="nav-links label">
-    <a href="#iletisim">İletişim</a>
-    <a class="btn solid" href="#rezervasyon">Rezervasyon</a>
+    <a href="#iletisim" data-i18n="contact">İletişim</a>
+    <div class="lang" id="lang">
+      <button class="lang-btn label" id="lang-btn" type="button" aria-haspopup="true" aria-expanded="false" aria-label="Dil / Language">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/></svg>
+        <span id="lang-code">TR</span>
+      </button>
+      <div class="lang-menu glass" id="lang-menu" role="menu">
+        <button type="button" role="menuitem" data-lang="tr" lang="tr">Türkçe <small>TR</small></button>
+        <button type="button" role="menuitem" data-lang="en" lang="en">English <small>EN</small></button>
+        <button type="button" role="menuitem" data-lang="ar" lang="ar" dir="rtl">العربية <small>AR</small></button>
+        <button type="button" role="menuitem" data-lang="ru" lang="ru">Русский <small>RU</small></button>
+        <button type="button" role="menuitem" data-lang="fr" lang="fr">Français <small>FR</small></button>
+        <button type="button" role="menuitem" data-lang="de" lang="de">Deutsch <small>DE</small></button>
+      </div>
+    </div>
+    <a class="btn solid" href="#rezervasyon" data-i18n="book">Rezervasyon</a>
   </div>
 </nav>
 
 <header class="hero" id="top">
   <div class="hero-panel glass tilt enter" style="--i:2">
     <div class="hero-meta label">
-      <span class="status"><i></i>Yapım aşamasında</span>
-      <span class="clock">Yomra <span id="clock">--:--</span></span>
+      <span class="status"><i></i><span data-i18n="status">Yapım aşamasında</span></span>
+      <span class="clock"><span data-i18n="yomra">Yomra</span> <span id="clock" dir="ltr">--:--</span></span>
     </div>
-    <h1>Butik bungalov oteli</h1>
-    <div class="count" id="count" role="timer" aria-label="Öngörülen açılışa kalan süre">
-      <div><b id="c-d">--</b><span class="label">Gün</span></div>
-      <div><b id="c-h">--</b><span class="label">Saat</span></div>
-      <div><b id="c-m">--</b><span class="label">Dakika</span></div>
-      <div><b id="c-s">--</b><span class="label">Saniye</span></div>
+    <h1 id="title" data-i18n="h1">Elit Bungalov Otel</h1>
+    <div class="count" id="count" role="timer" aria-label="Açılışa kalan süre">
+      <div><b id="c-d">--</b><span class="label" data-i18n="ud">Gün</span></div>
+      <div><b id="c-h">--</b><span class="label" data-i18n="uh">Saat</span></div>
+      <div><b id="c-m">--</b><span class="label" data-i18n="um">Dakika</span></div>
+      <div><b id="c-s">--</b><span class="label" data-i18n="us">Saniye</span></div>
     </div>
-    <p class="hero-sub" id="count-note">Öngörülen açılış 2 Ağustos 2027. Vonoz, Trabzon Yomra’da yapımı süren butik bir bungalov oteli; açılıştan önce ön talep bırakabilirsiniz.</p>
+    <p class="hero-sub" id="count-note" data-i18n="sub">Vonoz, Trabzon Yomra’da yapımı süren elit bir bungalov oteli. Açılıştan önce ön talep bırakabilirsiniz.</p>
     <div class="hero-actions">
-      <a class="btn solid label" href="#rezervasyon">Ön talep bırak</a>
-      <a class="btn glass label" href="#iletisim">İletişim</a>
+      <a class="btn solid label" href="#rezervasyon" data-i18n="cta">Ön talep bırak</a>
+      <a class="btn glass label" href="#iletisim" data-i18n="contact">İletişim</a>
     </div>
   </div>
 </header>
 
 <main>
   <section class="book" id="rezervasyon">
-    <div class="book-grid">
-      <div class="book-intro glass reveal">
+    <div class="card glass tilt reveal">
+      <header class="card-top">
         <span class="label" lang="en">Vonoz Countryside Hotel</span>
-        <h2>Rezervasyon</h2>
-        <p class="book-lede">Otel yapım aşamasında. Düşündüğünüz tarihleri bırakın, rezervasyonlar açıldığında sizi arayalım.</p>
-      </div>
-
-      <div class="card glass tilt reveal" style="--i:1">
-        <div class="card-head">
-          <h3>Tarih ve misafir</h3>
-          <span class="nights" id="nights" aria-live="polite"></span>
-        </div>
+        <h2 data-i18n="book">Rezervasyon</h2>
+        <p class="book-lede" data-i18n="lede">Otel yapım aşamasında. Düşündüğünüz tarihleri bırakın, rezervasyonlar açıldığında sizi arayalım.</p>
+      </header>
         <form id="book-form" novalidate>
           <div class="field">
-            <label class="label" for="f-in">Giriş</label>
+            <label class="label" for="f-in" data-i18n="fin">Giriş</label>
             <input type="date" id="f-in" name="giris" required>
           </div>
           <div class="field">
-            <label class="label" for="f-out">Çıkış</label>
+            <label class="label" for="f-out" data-i18n="fout">Çıkış</label>
             <input type="date" id="f-out" name="cikis" required>
           </div>
           <div class="field wide" role="radiogroup" aria-labelledby="guests-label">
-            <span class="label field-label" id="guests-label">Kişi sayısı</span>
+            <span class="label field-label" id="guests-label" data-i18n="guests">Kişi sayısı</span>
             <div class="seg">
               <input type="radio" name="kisi" id="g1" value="1"><label for="g1">1</label>
               <input type="radio" name="kisi" id="g2" value="2" checked><label for="g2">2</label>
@@ -357,21 +411,23 @@ setTimeout(window.__show, 7000);
             </div>
           </div>
           <div class="field">
-            <label class="label" for="f-name">Ad soyad</label>
+            <label class="label" for="f-name" data-i18n="name">Ad soyad</label>
             <input type="text" id="f-name" name="ad" autocomplete="name" required>
           </div>
           <div class="field">
-            <label class="label" for="f-phone">Telefon</label>
+            <label class="label" for="f-phone" data-i18n="phone">Telefon</label>
             <input type="tel" id="f-phone" name="telefon" placeholder="05__ ___ __ __" autocomplete="tel" required>
           </div>
           <div class="field wide">
-            <label class="label" for="f-note">Notunuz (isteğe bağlı)</label>
+            <label class="label" for="f-note" data-i18n="note">Notunuz (isteğe bağlı)</label>
             <textarea id="f-note" name="not" rows="1"></textarea>
           </div>
-          <button class="btn solid label submit" type="submit">Talep gönder</button>
+          <div class="form-foot">
+            <span class="nights" id="nights" aria-live="polite"></span>
+            <button class="btn solid label submit" type="submit" data-i18n="send">Talep gönder</button>
+          </div>
           <p class="form-msg" id="form-msg" role="status" hidden></p>
         </form>
-      </div>
     </div>
   </section>
 
@@ -379,27 +435,19 @@ setTimeout(window.__show, 7000);
     <div class="dock glass reveal" aria-label="İletişim">
       <a class="dock-item" href="tel:0123456789">
         <span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.5 5.700a2 2 0 0 1 2-2.200z"/></svg></span>
-        <span class="dock-text"><b>0123 456 789</b><small>örnek numara</small></span>
+        <span class="dock-text"><b dir="ltr">0123 456 789</b><small data-i18n="sample">örnek numara</small></span>
       </a>
       <span class="dock-sep" aria-hidden="true"></span>
       <span class="dock-item">
         <span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg></span>
-        <span class="dock-text"><b>Yomra</b><small>Trabzon</small></span>
+        <span class="dock-text"><b data-i18n="yomra">Yomra</b><small data-i18n="trabzon">Trabzon</small></span>
       </span>
       <span class="dock-sep" aria-hidden="true"></span>
       <div class="dock-social">
-        <a href="https://www.instagram.com/vonozotel" data-name="Instagram" aria-label="Instagram: @vonozotel">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="6.5" width="17" height="13" rx="3.5"/><path d="M8.5 6.500l1.2-2.500h4.600l1.2 2.5"/><circle cx="12" cy="13" r="3.4"/></svg>
-        </a>
-        <a href="https://x.com/vonozotel" data-name="X" aria-label="X: @vonozotel">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.500l14 15M19 4.500l-14 15"/></svg>
-        </a>
-        <a href="https://www.facebook.com/vonozotel" data-name="Facebook" aria-label="Facebook: @vonozotel">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4.5h-1.5a3 3 0 0 0-3 3V20M7.5 11.5h6.5"/></svg>
-        </a>
-        <a href="https://www.tiktok.com/@vonozotel" data-name="TikTok" aria-label="TikTok: @vonozotel">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17.500V5l8-1.500v12"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="15.5" cy="15.5" r="2.5"/></svg>
-        </a>
+        <a href="https://www.instagram.com/vonozotel" data-name="Instagram" aria-label="Instagram: @vonozotel"><i class="fa-brands fa-instagram" data-fb="IG" aria-hidden="true"></i></a>
+        <a href="https://x.com/vonozotel" data-name="X" aria-label="X: @vonozotel"><i class="fa-brands fa-x-twitter" data-fb="X" aria-hidden="true"></i></a>
+        <a href="https://www.facebook.com/vonozotel" data-name="Facebook" aria-label="Facebook: @vonozotel"><i class="fa-brands fa-facebook-f" data-fb="f" aria-hidden="true"></i></a>
+        <a href="https://www.tiktok.com/@vonozotel" data-name="TikTok" aria-label="TikTok: @vonozotel"><i class="fa-brands fa-tiktok" data-fb="TT" aria-hidden="true"></i></a>
       </div>
     </div>
   </div>
@@ -497,11 +545,19 @@ vec3 scene(vec2 uv) {
       for (int j = 0; j < 5; j++) {
         float fj = float(j);
         float lx = (-.02 + fj * .115 + h1(fj * 7.3) * .05) * wide;
-        float ly = ridge(i, lx, halfW) - .018 - h1(fj * 3.1) * .03;
+        float ly = ridge(i, lx, halfW) - .022 - h1(fj * 3.1) * .03;
         vec2 dv = vec2((u - lx) * rk, y - ly);
         float r = length(dv);
-        float tw = .85 + .15 * sin(uTime * (1.1 + fj * .37) + fj * 2.);
-        col += lamp * uLamp * tw * (smoothstep(.0034, .0018, r) + .22 * exp(-r * 95.) + .05 * exp(-r * 22.)) * m;
+        float tw = .88 + .12 * sin(uTime * (1.1 + fj * .37) + fj * 2.);
+        /* a small timber A-frame with one lit window */
+        float sz = 1. + .35 * h1(fj * 5.7);
+        vec2 q = vec2(dv.x, dv.y + .0062 * sz) / sz;
+        float roof = smoothstep(0., .0007, .0125 * (1. - q.y / .019) - abs(q.x)) * step(0., q.y) * step(q.y, .019);
+        vec3 timber = vec3(.16, .095, .05) * (.75 + .5 * uLamp * .5) + vec3(.05, .03, .012) * step(.5, fract(q.y * 420.));
+        col = mix(col, timber, roof * m);
+        float win = smoothstep(.0001, .0005, .0024 - abs(q.x)) * smoothstep(.0001, .0005, .0032 - abs(q.y - .0062));
+        col = mix(col, lamp * (.75 + .45 * uLamp) * tw, win * m);
+        col += lamp * (.35 + .65 * uLamp) * tw * (.2 * exp(-r * 95.) + .06 * exp(-r * 22.)) * m;
       }
     }
   }
@@ -562,6 +618,52 @@ void main() {
   var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var body = document.body;
   function show() { body.classList.remove("pre"); }
+
+  /* ----- languages ----- */
+  var T = {"tr": {"contact": "İletişim", "book": "Rezervasyon", "status": "Yapım aşamasında", "yomra": "Yomra", "trabzon": "Trabzon", "h1": "Elit Bungalov Otel", "ud": "Gün", "uh": "Saat", "um": "Dakika", "us": "Saniye", "sub": "Vonoz, Trabzon Yomra’da yapımı süren elit bir bungalov oteli. Açılıştan önce ön talep bırakabilirsiniz.", "cta": "Ön talep bırak", "lede": "Otel yapım aşamasında. Düşündüğünüz tarihleri bırakın, rezervasyonlar açıldığında sizi arayalım.", "card": "Tarih ve misafir", "fin": "Giriş", "fout": "Çıkış", "guests": "Kişi sayısı", "name": "Ad soyad", "phone": "Telefon", "note": "Notunuz (isteğe bağlı)", "send": "Talep gönder", "sample": "örnek numara", "nights": {"other": "{n} gece"}, "eShort": "Çıkış girişten sonra olmalı", "eDates": "Giriş ve çıkış tarihlerini seçin.", "eOrder": "Çıkış tarihi girişten sonra olmalı.", "eName": "Adınızı ve soyadınızı yazın.", "ePhone": "Sizi arayabilmemiz için telefon numaranızı yazın.", "ok": "{dates}, {nights}, {g} kişi için talebiniz hazır.", "demo": "Bu bir demo: talep henüz hiçbir yere iletilmedi. Site yayına alındığında bu form rezervasyon ekibine ulaşacak.", "loc": "tr-TR"}, "en": {"contact": "Contact", "book": "Reservation", "status": "Under construction", "yomra": "Yomra", "trabzon": "Trabzon", "h1": "Elite Bungalow Hotel", "ud": "Days", "uh": "Hours", "um": "Minutes", "us": "Seconds", "sub": "Vonoz is an elite bungalow hotel under construction in Yomra, Trabzon. You can leave a pre-booking request before we open.", "cta": "Leave a request", "lede": "The hotel is under construction. Leave the dates you have in mind and we will call you when reservations open.", "card": "Dates and guests", "fin": "Check-in", "fout": "Check-out", "guests": "Guests", "name": "Full name", "phone": "Phone", "note": "Your note (optional)", "send": "Send request", "sample": "sample number", "nights": {"one": "{n} night", "other": "{n} nights"}, "eShort": "Check-out must be after check-in", "eDates": "Choose your check-in and check-out dates.", "eOrder": "Check-out must be after check-in.", "eName": "Enter your full name.", "ePhone": "Enter your phone number so we can call you.", "ok": "{dates}, {nights}, guests: {g}. Your request is ready.", "demo": "This is a demo: the request has not been sent anywhere yet. Once the site is live, this form will reach the reservations team.", "loc": "en-GB"}, "ar": {"contact": "تواصل معنا", "book": "الحجز", "status": "قيد الإنشاء", "yomra": "يومرا", "trabzon": "طرابزون", "h1": "فندق أكواخ النخبة", "ud": "أيام", "uh": "ساعات", "um": "دقائق", "us": "ثوانٍ", "sub": "فونوز فندق أكواخ للنخبة قيد الإنشاء في يومرا، طرابزون. يمكنكم ترك طلب حجز مبدئي قبل الافتتاح.", "cta": "اترك طلبًا", "lede": "الفندق قيد الإنشاء. اتركوا التواريخ التي تفكرون فيها وسنتصل بكم عند فتح باب الحجز.", "card": "التواريخ والضيوف", "fin": "الوصول", "fout": "المغادرة", "guests": "عدد الأشخاص", "name": "الاسم الكامل", "phone": "الهاتف", "note": "ملاحظتكم (اختياري)", "send": "إرسال الطلب", "sample": "رقم تجريبي", "nights": {"one": "ليلة واحدة", "two": "ليلتان", "few": "{n} ليالٍ", "many": "{n} ليلة", "other": "{n} ليلة"}, "eShort": "المغادرة يجب أن تكون بعد الوصول", "eDates": "اختاروا تاريخي الوصول والمغادرة.", "eOrder": "يجب أن يكون تاريخ المغادرة بعد تاريخ الوصول.", "eName": "اكتبوا الاسم الكامل.", "ePhone": "اكتبوا رقم الهاتف لنتمكن من الاتصال بكم.", "ok": "{dates}، {nights}، عدد الأشخاص: {g}. طلبكم جاهز.", "demo": "هذه نسخة تجريبية: لم يُرسل الطلب إلى أي جهة بعد. عند إطلاق الموقع سيصل هذا النموذج إلى فريق الحجز.", "loc": "ar-u-nu-latn"}, "ru": {"contact": "Контакты", "book": "Бронирование", "status": "Строится", "yomra": "Йомра", "trabzon": "Трабзон", "h1": "Элитный Бунгало-Отель", "ud": "Дни", "uh": "Часы", "um": "Минуты", "us": "Секунды", "sub": "Vonoz — элитный отель с бунгало, который строится в Йомре, Трабзон. Оставить предварительную заявку можно уже сейчас.", "cta": "Оставить заявку", "lede": "Отель ещё строится. Укажите желаемые даты, и мы позвоним вам, когда откроется бронирование.", "card": "Даты и гости", "fin": "Заезд", "fout": "Выезд", "guests": "Гости", "name": "Имя и фамилия", "phone": "Телефон", "note": "Комментарий (необязательно)", "send": "Отправить заявку", "sample": "номер для примера", "nights": {"one": "{n} ночь", "few": "{n} ночи", "many": "{n} ночей", "other": "{n} ночи"}, "eShort": "Выезд должен быть позже заезда", "eDates": "Выберите даты заезда и выезда.", "eOrder": "Дата выезда должна быть позже даты заезда.", "eName": "Укажите имя и фамилию.", "ePhone": "Укажите номер телефона, чтобы мы могли вам позвонить.", "ok": "{dates}, {nights}, гостей: {g}. Ваша заявка готова.", "demo": "Это демоверсия: заявка пока никуда не отправлена. Когда сайт заработает, форма будет поступать в отдел бронирования.", "loc": "ru-RU"}, "fr": {"contact": "Contact", "book": "Réservation", "status": "En construction", "yomra": "Yomra", "trabzon": "Trabzon", "h1": "Hôtel Bungalow d’Élite", "ud": "Jours", "uh": "Heures", "um": "Minutes", "us": "Secondes", "sub": "Vonoz est un hôtel de bungalows d’élite en construction à Yomra, Trabzon. Vous pouvez laisser une demande de préréservation avant l’ouverture.", "cta": "Laisser une demande", "lede": "L’hôtel est en construction. Indiquez les dates envisagées et nous vous appellerons dès l’ouverture des réservations.", "card": "Dates et voyageurs", "fin": "Arrivée", "fout": "Départ", "guests": "Voyageurs", "name": "Nom et prénom", "phone": "Téléphone", "note": "Votre message (facultatif)", "send": "Envoyer la demande", "sample": "numéro d’exemple", "nights": {"one": "{n} nuit", "other": "{n} nuits"}, "eShort": "Le départ doit suivre l’arrivée", "eDates": "Choisissez vos dates d’arrivée et de départ.", "eOrder": "Le départ doit être postérieur à l’arrivée.", "eName": "Indiquez votre nom et prénom.", "ePhone": "Indiquez votre numéro de téléphone pour que nous puissions vous appeler.", "ok": "{dates}, {nights}, voyageurs : {g}. Votre demande est prête.", "demo": "Ceci est une démo : la demande n’a encore été envoyée nulle part. Une fois le site en ligne, ce formulaire parviendra à l’équipe de réservation.", "loc": "fr-FR"}, "de": {"contact": "Kontakt", "book": "Reservierung", "status": "Im Bau", "yomra": "Yomra", "trabzon": "Trabzon", "h1": "Elite-Bungalowhotel", "ud": "Tage", "uh": "Stunden", "um": "Minuten", "us": "Sekunden", "sub": "Vonoz ist ein Elite-Bungalowhotel, das in Yomra, Trabzon, entsteht. Schon vor der Eröffnung können Sie eine Voranfrage hinterlassen.", "cta": "Voranfrage senden", "lede": "Das Hotel ist noch im Bau. Nennen Sie uns Ihre Wunschtermine, und wir rufen Sie an, sobald Reservierungen möglich sind.", "card": "Termin und Gäste", "fin": "Anreise", "fout": "Abreise", "guests": "Personen", "name": "Vor- und Nachname", "phone": "Telefon", "note": "Ihre Nachricht (optional)", "send": "Anfrage senden", "sample": "Beispielnummer", "nights": {"one": "{n} Nacht", "other": "{n} Nächte"}, "eShort": "Abreise muss nach der Anreise liegen", "eDates": "Bitte wählen Sie An- und Abreisedatum.", "eOrder": "Die Abreise muss nach der Anreise liegen.", "eName": "Bitte geben Sie Ihren Namen ein.", "ePhone": "Bitte geben Sie Ihre Telefonnummer an, damit wir Sie anrufen können.", "ok": "{dates}, {nights}, Personen: {g}. Ihre Anfrage ist bereit.", "demo": "Dies ist eine Demo: Die Anfrage wurde noch nirgendwohin gesendet. Sobald die Website live ist, erreicht dieses Formular das Reservierungsteam.", "loc": "de-DE"}};
+  var lang = "tr", L = T.tr, refreshForm = function () {};
+  function nightsText(n) {
+    var cat = "other";
+    try { cat = new Intl.PluralRules(lang).select(n); } catch (e) {}
+    return (L.nights[cat] || L.nights.other).replace("{n}", n);
+  }
+  function fitTitle() {
+    var h = document.getElementById("title");
+    h.style.fontSize = "";
+    if (h.scrollWidth > h.clientWidth + 1) h.style.fontSize = (parseFloat(getComputedStyle(h).fontSize) * h.clientWidth / h.scrollWidth * .985) + "px";
+  }
+  window.addEventListener("resize", fitTitle);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitTitle);
+  function setLang(code, save) {
+    if (!T[code]) code = "tr";
+    lang = code; L = T[code];
+    var root = document.documentElement;
+    root.lang = code; root.dir = code === "ar" ? "rtl" : "ltr";
+    document.querySelectorAll("[data-i18n]").forEach(function (el) { el.textContent = L[el.getAttribute("data-i18n")]; });
+    document.getElementById("lang-code").textContent = code.toUpperCase();
+    document.querySelectorAll("#lang-menu button").forEach(function (b) { b.setAttribute("aria-current", b.getAttribute("data-lang") === code ? "true" : "false"); });
+    document.getElementById("form-msg").hidden = true;
+    refreshForm(); fitTitle();
+    if (save) { try { localStorage.setItem("vonoz-lang", code); } catch (e) {} }
+  }
+  (function () {
+    var wrap = document.getElementById("lang"), btn = document.getElementById("lang-btn");
+    function close() { wrap.classList.remove("open"); btn.setAttribute("aria-expanded", "false"); }
+    btn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      var open = wrap.classList.toggle("open"); btn.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    document.getElementById("lang-menu").addEventListener("click", function (e) {
+      var b = e.target.closest("button[data-lang]"); if (!b) return;
+      setLang(b.getAttribute("data-lang"), true); close(); btn.focus();
+    });
+    document.addEventListener("click", function (e) { if (!wrap.contains(e.target)) close(); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
+    var start = null;
+    try { start = localStorage.getItem("vonoz-lang"); } catch (e) {}
+    if (!start) { var nav = (navigator.language || "tr").slice(0, 2).toLowerCase(); start = T[nav] ? nav : "tr"; }
+    setLang(start, false);
+  })();
 
   /* ----- the sky follows the real hour in Yomra ----- */
   var SKY = {
@@ -729,7 +831,7 @@ void main() {
   var form = document.getElementById("book-form");
   var fin = document.getElementById("f-in"), fout = document.getElementById("f-out");
   var nightsEl = document.getElementById("nights"), msg = document.getElementById("form-msg");
-  var fmt = new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "long" });
+  function fmtDate(d) { return new Intl.DateTimeFormat(L.loc, { day: "numeric", month: "long" }).format(d); }
 
   function iso(d) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
   function parse(v) { var p = v.split("-"); return p.length === 3 ? new Date(+p[0], +p[1] - 1, +p[2]) : null; }
@@ -743,8 +845,9 @@ void main() {
       fout.min = iso(next);
     }
     var n = nights();
-    nightsEl.textContent = n === null ? "" : n > 0 ? n + " gece" : "Çıkış girişten sonra olmalı";
+    nightsEl.textContent = n === null ? "" : n > 0 ? nightsText(n) : L.eShort;
   }
+  refreshForm = refresh;
   fin.min = iso(new Date());
   fin.addEventListener("change", refresh);
   fout.addEventListener("change", refresh);
@@ -754,14 +857,14 @@ void main() {
     var n = nights(), name = document.getElementById("f-name").value.trim(), phone = document.getElementById("f-phone").value.trim();
     msg.hidden = false;
     msg.textContent = "";
-    if (n === null) { msg.textContent = "Giriş ve çıkış tarihlerini seçin."; (fin.value ? fout : fin).focus(); return; }
-    if (n <= 0) { msg.textContent = "Çıkış tarihi girişten sonra olmalı."; fout.focus(); return; }
-    if (!name) { msg.textContent = "Adınızı ve soyadınızı yazın."; document.getElementById("f-name").focus(); return; }
-    if (phone.replace(/\D/g, "").length < 10) { msg.textContent = "Sizi arayabilmemiz için telefon numaranızı yazın."; document.getElementById("f-phone").focus(); return; }
-    msg.textContent = fmt.format(parse(fin.value)) + " – " + fmt.format(parse(fout.value)) + ", " + n + " gece, " +
-      form.elements.kisi.value + " kişi için talebiniz hazır.";
+    if (n === null) { msg.textContent = L.eDates; (fin.value ? fout : fin).focus(); return; }
+    if (n <= 0) { msg.textContent = L.eOrder; fout.focus(); return; }
+    if (!name) { msg.textContent = L.eName; document.getElementById("f-name").focus(); return; }
+    if (phone.replace(/\D/g, "").length < 10) { msg.textContent = L.ePhone; document.getElementById("f-phone").focus(); return; }
+    msg.textContent = L.ok.replace("{dates}", fmtDate(parse(fin.value)) + " – " + fmtDate(parse(fout.value)))
+      .replace("{nights}", nightsText(n)).replace("{g}", form.elements.kisi.value);
     var note = document.createElement("small");
-    note.textContent = "Bu bir demo: talep henüz hiçbir yere iletilmedi. Site yayına alındığında bu form rezervasyon ekibine ulaşacak.";
+    note.textContent = L.demo;
     msg.appendChild(note);
   });
 })();
