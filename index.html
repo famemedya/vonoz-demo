@@ -80,20 +80,20 @@ p { margin: 0; }
 
 /* ---------- Opening ---------- */
 .intro-ui { position: fixed; inset: 0; z-index: 30; pointer-events: none; animation: ui-out .55s ease 2s forwards; }
-.bone {
+.intro-sub {
   position: absolute; left: 50%; transform: translateX(-50%);
-  top: calc(50% + min(60vw, 520px) * .116 + 30px);
-  width: min(44vw, 340px); height: auto; overflow: visible; color: rgba(237, 240, 242, .8);
+  top: calc(50% + min(60vw, 520px) * .116 + 22px);
+  width: min(46vw, 360px); display: grid; gap: 14px; justify-items: center; color: rgba(237, 240, 242, .82);
 }
-.bone .spine { stroke-dasharray: 1; stroke-dashoffset: 0; animation: draw 1.2s cubic-bezier(.6, 0, .2, 1) .35s both; }
-.bone .rib { transform-box: fill-box; transform-origin: right center; animation: rib .5s var(--ease) both; }
-.bone .head { animation: fade .5s ease 1.4s both; }
-.bone .tail { animation: fade .4s ease .3s both; }
+.ridge { width: 100%; height: auto; overflow: visible; }
+.ridge-line { stroke-dasharray: 1; stroke-dashoffset: 0; animation: draw 1.5s cubic-bezier(.6, 0, .2, 1) .35s both; }
+.ridge-moon { animation: moonrise 1.1s var(--ease) .9s both; }
+.intro-sub .label { letter-spacing: .42em; padding-left: .42em; font-size: .62rem; animation: fade .9s ease 1.1s both; }
+@keyframes moonrise { from { opacity: 0; transform: translateY(10px); } }
 .fallback-logo { display: none; position: absolute; left: 50%; top: 50%; width: min(56vw, 480px); transform: translate(-50%, -50%); animation: fade 1s ease both; }
 .nogl .fallback-logo { display: block; }
 @keyframes ui-out { to { opacity: 0; visibility: hidden; } }
 @keyframes draw { from { stroke-dashoffset: 1; } }
-@keyframes rib { from { opacity: 0; transform: scale(.2); } }
 @keyframes fade { from { opacity: 0; } }
 
 /* content waits behind the opening, then settles in one after another */
@@ -283,26 +283,14 @@ setTimeout(window.__show, 7000);
 
 <div class="intro-ui" aria-hidden="true">
   <span class="logo-vonoz fallback-logo"></span>
-  <svg class="bone" viewBox="0 0 420 44" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
-    <path class="tail" d="M4 8 L26 22 L4 36"/>
-    <path class="spine" pathLength="1" d="M26 22 H384"/>
-    <g id="ribs"></g>
-    <path class="head" d="M384 22 L392 12 Q414 15 416 22 Q414 29 392 32 Z"/>
-  </svg>
+  <div class="intro-sub">
+    <svg class="ridge" viewBox="0 0 420 40" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round">
+      <path class="ridge-line" pathLength="1" d="M2 32 C40 32 62 21 92 23 S140 29 170 18 S214 7 238 11 S292 27 322 21 S382 30 418 29"/>
+      <circle class="ridge-moon" cx="300" cy="6" r="2.6" fill="currentColor" stroke="none"/>
+    </svg>
+    <span class="label" lang="en">Countryside Hotel</span>
+  </div>
 </div>
-<script>
-/* ribs of the fish spine, longest at the body and tapering to the tail */
-(function () {
-  var g = document.getElementById("ribs"), n = 24, s = "";
-  for (var i = 0; i < n; i++) {
-    var t = (i + 1) / (n + 1), x = 26 + t * 358;
-    var h = 4 + 15 * Math.pow(Math.sin(Math.PI * Math.pow(t, .75)), .8), b = h * .62;
-    s += '<path class="rib" style="animation-delay:' + (.45 + t * .95).toFixed(2) + 's" d="M' + (x - b).toFixed(1) + " " + (22 - h).toFixed(1) +
-         " L" + x.toFixed(1) + " 22 L" + (x - b).toFixed(1) + " " + (22 + h).toFixed(1) + '"/>';
-  }
-  g.innerHTML = s;
-})();
-</script>
 
 <div class="backdrop" aria-hidden="true"><canvas id="scene"></canvas></div>
 
@@ -339,7 +327,7 @@ setTimeout(window.__show, 7000);
   <section class="book" id="rezervasyon">
     <div class="book-grid">
       <div class="book-intro glass reveal">
-        <span class="label">Vonoz Countryside Hotel</span>
+        <span class="label" lang="en">Vonoz Countryside Hotel</span>
         <h2>Rezervasyon</h2>
         <p class="book-lede">Otel yapım aşamasında. Düşündüğünüz tarihleri bırakın, rezervasyonlar açıldığında sizi arayalım.</p>
       </div>
