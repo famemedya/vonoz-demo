@@ -187,7 +187,7 @@ html[lang="ar"] .intro-sub .label { letter-spacing: .42em; font-size: .62rem; }
   padding: 120px var(--gutter) clamp(32px, 8vh, 88px);
 }
 .hero-panel {
-  display: grid; gap: 22px; justify-items: center; text-align: center;
+  display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px; justify-items: center; text-align: center;
   width: min(100%, 760px); padding: clamp(24px, 4vw, 48px) clamp(20px, 4vw, 56px); border-radius: 40px;
 }
 .hero-meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 26px; color: var(--mist); }
@@ -195,7 +195,7 @@ html[lang="ar"] .intro-sub .label { letter-spacing: .42em; font-size: .62rem; }
 .status i { width: 8px; height: 8px; border-radius: 50%; background: var(--lamp); box-shadow: 0 0 0 0 rgba(230, 189, 124, .6); animation: lamp 2.6s ease-out infinite; }
 @keyframes lamp { to { box-shadow: 0 0 0 12px rgba(230, 189, 124, 0); } }
 .clock { font-variant-numeric: tabular-nums; }
-.hero h1 { width: 100%; white-space: nowrap; font-size: clamp(1.9rem, 6.4vw, 4.6rem); line-height: 1.08; }   /* always one line; script shrinks it to fit */
+.hero h1 { width: 100%; min-width: 0; white-space: nowrap; font-size: clamp(1.9rem, 6.4vw, 4.6rem); line-height: 1.08; }   /* always one line; script shrinks it to fit */
 .hero-sub { color: #e3e9e6; max-width: 46ch; }
 .count { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: min(100%, 520px); }
 .count div {
@@ -718,8 +718,9 @@ void main() {
   function fitTitle() {
     var h = document.getElementById("title");
     h.style.fontSize = "";
-    if (h.scrollWidth > h.clientWidth + 1) h.style.fontSize = (parseFloat(getComputedStyle(h).fontSize) * h.clientWidth / h.scrollWidth * .985) + "px";
+    if (h.scrollWidth > h.clientWidth + 1) h.style.fontSize = (parseFloat(getComputedStyle(h).fontSize) * h.clientWidth / h.scrollWidth * .97) + "px";
   }
+  if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener("loadingdone", fitTitle);
   window.addEventListener("resize", fitTitle);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitTitle);
   function setLang(code, save) {
