@@ -154,6 +154,13 @@ p { margin: 0; }
 .clock { font-variant-numeric: tabular-nums; }
 .hero h1 { font-size: clamp(2.3rem, 5vw, 3.9rem); line-height: 1.04; }
 .hero-sub { color: #e3e9e6; max-width: 44ch; }
+.count { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.count div {
+  display: grid; gap: 2px; justify-items: center; padding: 14px 4px 11px; border-radius: 20px;
+  background: rgba(6, 13, 12, .42); border: 1px solid rgba(237, 240, 242, .14); box-shadow: inset 0 1px 6px rgba(3, 8, 7, .4);
+}
+.count b { font-family: var(--display); font-weight: 400; font-size: clamp(1.7rem, 4vw, 2.5rem); line-height: 1; font-variant-numeric: tabular-nums; }
+.count span { color: var(--mist); font-size: .6rem; letter-spacing: .2em; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
 
 /* ---------- Reservation ---------- */
@@ -314,7 +321,13 @@ setTimeout(window.__show, 7000);
       <span class="clock">Yomra <span id="clock">--:--</span></span>
     </div>
     <h1>Butik bungalov oteli</h1>
-    <p class="hero-sub">Vonoz, Trabzon Yomra’da yapımı süren butik bir bungalov oteli. Rezervasyonlar açılmadan önce ön talep bırakabilirsiniz.</p>
+    <div class="count" id="count" role="timer" aria-label="Öngörülen açılışa kalan süre">
+      <div><b id="c-d">--</b><span class="label">Gün</span></div>
+      <div><b id="c-h">--</b><span class="label">Saat</span></div>
+      <div><b id="c-m">--</b><span class="label">Dakika</span></div>
+      <div><b id="c-s">--</b><span class="label">Saniye</span></div>
+    </div>
+    <p class="hero-sub" id="count-note">Öngörülen açılış 2 Ağustos 2027. Vonoz, Trabzon Yomra’da yapımı süren butik bir bungalov oteli; açılıştan önce ön talep bırakabilirsiniz.</p>
     <div class="hero-actions">
       <a class="btn solid label" href="#rezervasyon">Ön talep bırak</a>
       <a class="btn glass label" href="#iletisim">İletişim</a>
@@ -587,6 +600,19 @@ void main() {
     }
   }
   try { tick(); setInterval(tick, 30000); } catch (e) {}
+
+  /* ----- time left until the planned opening: 2 August 2027, Yomra time ----- */
+  var OPENING = Date.parse("2027-08-02T00:00:00+03:00");
+  var cEl = { d: document.getElementById("c-d"), h: document.getElementById("c-h"), m: document.getElementById("c-m"), s: document.getElementById("c-s") };
+  function pad(n) { return String(n).padStart(2, "0"); }
+  function countdown() {
+    var left = Math.max(0, OPENING - Date.now()), sec = Math.floor(left / 1000);
+    cEl.d.textContent = Math.floor(sec / 86400);
+    cEl.h.textContent = pad(Math.floor(sec % 86400 / 3600));
+    cEl.m.textContent = pad(Math.floor(sec % 3600 / 60));
+    cEl.s.textContent = pad(sec % 60);
+  }
+  countdown(); setInterval(countdown, 1000);
 
   /* ----- glass: highlight follows the pointer, large panes lean toward it ----- */
   var fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
