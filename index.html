@@ -293,6 +293,44 @@ a.dock-item:hover { background: rgba(237, 240, 242, .1); }
 }
 .dock-social a:hover::after, .dock-social a:focus-visible::after { opacity: 1; transform: translateX(-50%); }
 
+/* ---------- Small touches ---------- */
+.btn { transition: transform .45s cubic-bezier(.34, 1.56, .64, 1), background .3s, color .3s, box-shadow .3s; }
+.btn:active { transform: scale(.94); transition-duration: .08s; }
+.count div { perspective: 320px; }
+.count b { display: block; transform-origin: 50% 70%; }
+.count b.flip { animation: flip .55s var(--ease); }
+@keyframes flip { from { transform: rotateX(-88deg); opacity: .15; } }
+.field { position: relative; overflow: hidden; }
+.field::after {
+  content: ""; position: absolute; top: 0; bottom: 0; left: -40%; width: 35%; pointer-events: none; opacity: 0;
+  background: linear-gradient(100deg, transparent, rgba(255, 236, 200, .22), transparent); transform: skewX(-18deg);
+}
+.field:focus-within::after { animation: glint .9s var(--ease); }
+@keyframes glint { from { left: -40%; opacity: 1; } to { left: 120%; opacity: 1; } }
+
+form[hidden], .done[hidden] { display: none; }
+.done { display: grid; justify-items: center; text-align: center; gap: 14px; padding: 8px 0 4px; animation: rise 1s var(--ease) both; }
+@keyframes rise { from { opacity: 0; transform: translateY(16px); } }
+.done svg { width: 132px; height: auto; overflow: visible; }
+.done .win { fill: #2a1a10; transition: fill 1.2s ease .5s, filter 1.2s ease .5s; }
+.done.lit .win { fill: var(--lamp); filter: drop-shadow(0 0 10px rgba(230, 189, 124, .95)) drop-shadow(0 0 26px rgba(230, 189, 124, .6)); }
+.done h3 { font-family: var(--display); font-weight: 400; font-size: 1.9rem; margin: 6px 0 0; }
+.done p { color: #e3e9e6; font-variant-numeric: tabular-nums; }
+.done small { color: var(--mist); font-size: .9rem; max-width: 46ch; }
+.done .btn { margin-top: 8px; }
+
+.sound {
+  position: fixed; z-index: 19; bottom: 18px; inset-inline-end: 18px; width: 52px; height: 52px; border-radius: 50%;
+  display: grid; place-items: center; cursor: pointer; color: var(--paper); padding: 0;
+}
+.sound svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.sound .waves { opacity: 0; transition: opacity .4s; }
+.sound .mute { transition: opacity .4s; }
+.sound[aria-pressed="true"] { color: var(--lamp); }
+.sound[aria-pressed="true"] .waves { opacity: 1; }
+.sound[aria-pressed="true"] .mute { opacity: 0; }
+.pre .sound { opacity: 0; pointer-events: none; }
+
 /* ---------- Footer ---------- */
 footer { padding: clamp(56px, 10vh, 110px) var(--gutter) clamp(40px, 7vh, 72px); display: grid; place-items: center; }
 footer .logo-vonoz { width: min(46vw, 210px); color: var(--paper); animation: breathe 4.6s ease-in-out infinite alternate; }
@@ -319,7 +357,7 @@ footer .logo-vonoz { width: min(46vw, 210px); color: var(--paper); animation: br
   html { scroll-behavior: auto; }
   .intro-ui { display: none; }
   .enter, .reveal, .tilt { transition: none; }
-  .status i, .btn.solid::after, footer .logo-vonoz { animation: none; }
+  .status i, .btn.solid::after, footer .logo-vonoz, .count b.flip, .field:focus-within::after { animation: none; }
 }
 </style>
 <script>
@@ -370,7 +408,7 @@ setTimeout(window.__show, 7000);
   <div class="hero-panel glass tilt enter" style="--i:2">
     <div class="hero-meta label">
       <span class="status"><i></i><span data-i18n="status">Yapım aşamasında</span></span>
-      <span class="clock"><span data-i18n="yomra">Yomra</span> <span id="clock" dir="ltr">--:--</span></span>
+      <span class="clock"><span data-i18n="yomra">Yomra</span> <span id="clock" dir="ltr">--:--</span><span id="temp" dir="ltr"></span></span>
     </div>
     <h1 id="title" data-i18n="h1">Elit Bungalov Otel</h1>
     <div class="count" id="count" role="timer" aria-label="Açılışa kalan süre">
@@ -432,6 +470,19 @@ setTimeout(window.__show, 7000);
           </div>
           <p class="form-msg" id="form-msg" role="status" hidden></p>
         </form>
+        <div class="done" id="done" hidden>
+          <svg viewBox="0 0 132 92" aria-hidden="true">
+            <path d="M8 86 L66 6 L124 86 Z" fill="#6f472a"/>
+            <path d="M8 86 L66 6 L124 86" fill="none" stroke="#b98a5c" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+            <rect class="win" x="54" y="46" width="24" height="26" rx="2"/>
+            <path d="M66 46 V72 M54 59 H78" stroke="#6f472a" stroke-width="2"/>
+            <path d="M0 87 H132" stroke="#b98a5c" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <h3 data-i18n="doneTitle">Talebiniz hazır</h3>
+          <p id="done-sum"></p>
+          <small data-i18n="demo"></small>
+          <button class="btn glass label" id="again" type="button" data-i18n="again">Yeni talep</button>
+        </div>
     </div>
   </section>
 
@@ -457,6 +508,10 @@ setTimeout(window.__show, 7000);
   </div>
 </main>
 
+<button class="sound glass enter" id="sound" type="button" aria-pressed="false" aria-label="Ses / Sound" style="--i:4">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.500v5h3.500L12 18.500v-13L7.5 9.500z"/><path class="waves" d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.500a7.8 7.8 0 0 1 0 11"/><path class="mute" d="M16 9.500l5 5M21 9.500l-5 5"/></svg>
+</button>
+
 <footer>
   <span class="logo-vonoz" role="img" aria-label="Vonoz"></span>
 </footer>
@@ -476,6 +531,9 @@ uniform vec3 uHaze;
 uniform vec3 uFar;
 uniform float uLamp;
 uniform float uStars;
+uniform vec2 uPtr;      /* pointer in screen space: a lantern over the landscape */
+uniform float uRain;    /* live weather in Yomra */
+uniform float uCloud;
 
 float h1(float n) { return fract(sin(n * 127.1) * 43758.5453); }
 float h2(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
@@ -496,13 +554,18 @@ float ridge(float i, float u, float halfW) {
   h += mix(.11, .19, d) * smoothstep(-.15, 1.05, u / halfW);      /* the ridge climbs to the right */
   float t = abs(fract(u * mix(46., 30., d)) - .5) * 2.;             /* spruce line */
   h += t * t * .016 * smoothstep(.25, 1., d) * (.35 + n1(u * 9. + i * 3.));
-  h += uScroll * mix(0., .2, d * d);
+  h += uScroll * mix(0., .05, d * d);
   return h;
 }
 float shift(float i) { float d = i / (LAYERS - 1.); return uMouse.x * mix(.004, .07, d * d) + uTime * .0025 * d; }
 
 vec3 scene(vec2 uv) {
   float asp = uRes.x / uRes.y;
+  vec2 suv = uv;
+  vec2 focus = vec2(.70, .40);                                   /* scrolling walks the camera toward the cabins */
+  uv = focus + (uv - focus) / (1. + uScroll * .85);
+  float pd = length(vec2((suv.x - uPtr.x) * asp, suv.y - uPtr.y));
+  float lantern = exp(-pd * pd * 60.);
   float wide = max(asp, 1.15);
   float halfW = wide * .5;
   float rk = asp / wide;
@@ -513,14 +576,15 @@ vec3 scene(vec2 uv) {
 
   vec3 col = mix(uHaze, uSkyMid, smoothstep(HORIZON - .02, HORIZON + .26, y));
   col = mix(col, uSkyTop, smoothstep(.74, 1.08, y));
+  col = mix(col, uHaze * .7, uCloud * .32 * smoothstep(HORIZON, 1., y));
   vec2 moon = vec2(.13 * wide + uMouse.x * .002, .80);
   float md = length(vec2((x - moon.x) * rk, y - moon.y));
-  col += vec3(.95, .93, .82) * (smoothstep(.019, .016, md) + .16 * exp(-md * 9.) + .05 * exp(-md * 2.5));
+  col += vec3(.95, .93, .82) * (1. - .75 * uCloud) * (smoothstep(.019, .016, md) + .16 * exp(-md * 9.) + .05 * exp(-md * 2.5));
   col += vec3(.10, .08, .03) * exp(-abs(y - HORIZON) * 9.) * exp(-pow((x - moon.x) / .7, 2.));
   vec2 sv = vec2(x * rk, y) * 150.;
   vec2 sg = floor(sv);
   float st = step(.988, h2(sg)) * smoothstep(.66, .95, y) * smoothstep(.22, .04, length(fract(sv) - .5 - (vec2(h2(sg + 7.), h2(sg + 9.)) - .5) * .5));
-  col += uStars * st * (.4 + .35 * sin(uTime * 1.3 + h2(sg + 3.) * 40.));
+  col += uStars * (1. - uCloud) * st * (.4 + .35 * sin(uTime * 1.3 + h2(sg + 3.) * 40.));
 
   if (y < HORIZON) {
     float dp = HORIZON - y;
@@ -541,7 +605,7 @@ vec3 scene(vec2 uv) {
     float m = smoothstep(h + aa, h - aa, y);
     vec3 lc = mix(uFar, nearC, pow(d, .72));
     float drift = n2(vec2(u * 2.2 - uTime * .03 * (1. + d), y * 7. + i * 5.));
-    float fog = smoothstep(0., .2, h - y) * (1. - d) * (.42 + .55 * drift);
+    float fog = smoothstep(0., .2, h - y) * (1. - d) * (.42 + .55 * drift) * (1. + .5 * uCloud);
     lc = mix(lc, uHaze * .92, fog * .8);
     col = mix(col, lc, m);
 
@@ -560,10 +624,19 @@ vec3 scene(vec2 uv) {
         vec3 timber = vec3(.16, .095, .05) * (.75 + .5 * uLamp * .5) + vec3(.05, .03, .012) * step(.5, fract(q.y * 420.));
         col = mix(col, timber, roof * m);
         float win = smoothstep(.0001, .0005, .0024 - abs(q.x)) * smoothstep(.0001, .0005, .0032 - abs(q.y - .0062));
-        col = mix(col, lamp * (.75 + .45 * uLamp) * tw, win * m);
-        col += lamp * (.35 + .65 * uLamp) * tw * (.2 * exp(-r * 95.) + .06 * exp(-r * 22.)) * m;
+        float glow = tw * (1. + 1.8 * lantern);
+        col = mix(col, lamp * (.75 + .45 * uLamp) * glow, win * m);
+        col += lamp * (.35 + .65 * uLamp) * glow * (.2 * exp(-r * 95.) + .06 * exp(-r * 22.)) * m;
       }
     }
+  }
+  col += uHaze * .14 * exp(-pd * pd * 24.);                      /* the lantern lifts the mist around the pointer */
+  if (uRain > .01) {
+    vec2 g = vec2(suv.x * asp * 150. + suv.y * 26., suv.y * 5. + uTime * 4.6);
+    float id = floor(g.x);
+    float f = fract(g.y + h1(id) * 10.);
+    float line = smoothstep(0., .05, f) * smoothstep(.2, .05, f) * step(.5, h1(id + 3.)) * smoothstep(.5, .1, abs(fract(g.x) - .5));
+    col += uRain * .09 * line * (uHaze + .25);
   }
   return col;
 }
@@ -630,6 +703,11 @@ void main() {
 
   /* ----- languages ----- */
   var T = {"tr": {"contact": "İletişim", "book": "Rezervasyon", "status": "Yapım aşamasında", "yomra": "Yomra", "trabzon": "Trabzon", "h1": "Elit Bungalov Otel", "ud": "Gün", "uh": "Saat", "um": "Dakika", "us": "Saniye", "sub": "Vonoz, Trabzon Yomra’da yapımı süren elit bir bungalov oteli. Açılıştan önce ön talep bırakabilirsiniz.", "cta": "Ön talep bırak", "lede": "Otel yapım aşamasında. Düşündüğünüz tarihleri bırakın, rezervasyonlar açıldığında sizi arayalım.", "card": "Tarih ve misafir", "fin": "Giriş", "fout": "Çıkış", "guests": "Kişi sayısı", "name": "Ad soyad", "phone": "Telefon", "note": "Notunuz (isteğe bağlı)", "send": "Talep gönder", "sample": "örnek numara", "nights": {"other": "{n} gece"}, "eShort": "Çıkış girişten sonra olmalı", "eDates": "Giriş ve çıkış tarihlerini seçin.", "eOrder": "Çıkış tarihi girişten sonra olmalı.", "eName": "Adınızı ve soyadınızı yazın.", "ePhone": "Sizi arayabilmemiz için telefon numaranızı yazın.", "ok": "{dates}, {nights}, {g} kişi için talebiniz hazır.", "demo": "Bu bir demo: talep henüz hiçbir yere iletilmedi. Site yayına alındığında bu form rezervasyon ekibine ulaşacak.", "loc": "tr-TR"}, "en": {"contact": "Contact", "book": "Reservation", "status": "Under construction", "yomra": "Yomra", "trabzon": "Trabzon", "h1": "Elite Bungalow Hotel", "ud": "Days", "uh": "Hours", "um": "Minutes", "us": "Seconds", "sub": "Vonoz is an elite bungalow hotel under construction in Yomra, Trabzon. You can leave a pre-booking request before we open.", "cta": "Leave a request", "lede": "The hotel is under construction. Leave the dates you have in mind and we will call you when reservations open.", "card": "Dates and guests", "fin": "Check-in", "fout": "Check-out", "guests": "Guests", "name": "Full name", "phone": "Phone", "note": "Your note (optional)", "send": "Send request", "sample": "sample number", "nights": {"one": "{n} night", "other": "{n} nights"}, "eShort": "Check-out must be after check-in", "eDates": "Choose your check-in and check-out dates.", "eOrder": "Check-out must be after check-in.", "eName": "Enter your full name.", "ePhone": "Enter your phone number so we can call you.", "ok": "{dates}, {nights}, guests: {g}. Your request is ready.", "demo": "This is a demo: the request has not been sent anywhere yet. Once the site is live, this form will reach the reservations team.", "loc": "en-GB"}, "ar": {"contact": "تواصل معنا", "book": "الحجز", "status": "قيد الإنشاء", "yomra": "يومرا", "trabzon": "طرابزون", "h1": "فندق أكواخ النخبة", "ud": "أيام", "uh": "ساعات", "um": "دقائق", "us": "ثوانٍ", "sub": "فونوز فندق أكواخ للنخبة قيد الإنشاء في يومرا، طرابزون. يمكنكم ترك طلب حجز مبدئي قبل الافتتاح.", "cta": "اترك طلبًا", "lede": "الفندق قيد الإنشاء. اتركوا التواريخ التي تفكرون فيها وسنتصل بكم عند فتح باب الحجز.", "card": "التواريخ والضيوف", "fin": "الوصول", "fout": "المغادرة", "guests": "عدد الأشخاص", "name": "الاسم الكامل", "phone": "الهاتف", "note": "ملاحظتكم (اختياري)", "send": "إرسال الطلب", "sample": "رقم تجريبي", "nights": {"one": "ليلة واحدة", "two": "ليلتان", "few": "{n} ليالٍ", "many": "{n} ليلة", "other": "{n} ليلة"}, "eShort": "المغادرة يجب أن تكون بعد الوصول", "eDates": "اختاروا تاريخي الوصول والمغادرة.", "eOrder": "يجب أن يكون تاريخ المغادرة بعد تاريخ الوصول.", "eName": "اكتبوا الاسم الكامل.", "ePhone": "اكتبوا رقم الهاتف لنتمكن من الاتصال بكم.", "ok": "{dates}، {nights}، عدد الأشخاص: {g}. طلبكم جاهز.", "demo": "هذه نسخة تجريبية: لم يُرسل الطلب إلى أي جهة بعد. عند إطلاق الموقع سيصل هذا النموذج إلى فريق الحجز.", "loc": "ar-u-nu-latn"}, "ru": {"contact": "Контакты", "book": "Бронирование", "status": "Строится", "yomra": "Йомра", "trabzon": "Трабзон", "h1": "Элитный Бунгало-Отель", "ud": "Дни", "uh": "Часы", "um": "Минуты", "us": "Секунды", "sub": "Vonoz — элитный отель с бунгало, который строится в Йомре, Трабзон. Оставить предварительную заявку можно уже сейчас.", "cta": "Оставить заявку", "lede": "Отель ещё строится. Укажите желаемые даты, и мы позвоним вам, когда откроется бронирование.", "card": "Даты и гости", "fin": "Заезд", "fout": "Выезд", "guests": "Гости", "name": "Имя и фамилия", "phone": "Телефон", "note": "Комментарий (необязательно)", "send": "Отправить заявку", "sample": "номер для примера", "nights": {"one": "{n} ночь", "few": "{n} ночи", "many": "{n} ночей", "other": "{n} ночи"}, "eShort": "Выезд должен быть позже заезда", "eDates": "Выберите даты заезда и выезда.", "eOrder": "Дата выезда должна быть позже даты заезда.", "eName": "Укажите имя и фамилию.", "ePhone": "Укажите номер телефона, чтобы мы могли вам позвонить.", "ok": "{dates}, {nights}, гостей: {g}. Ваша заявка готова.", "demo": "Это демоверсия: заявка пока никуда не отправлена. Когда сайт заработает, форма будет поступать в отдел бронирования.", "loc": "ru-RU"}, "fr": {"contact": "Contact", "book": "Réservation", "status": "En construction", "yomra": "Yomra", "trabzon": "Trabzon", "h1": "Hôtel Bungalow d’Élite", "ud": "Jours", "uh": "Heures", "um": "Minutes", "us": "Secondes", "sub": "Vonoz est un hôtel de bungalows d’élite en construction à Yomra, Trabzon. Vous pouvez laisser une demande de préréservation avant l’ouverture.", "cta": "Laisser une demande", "lede": "L’hôtel est en construction. Indiquez les dates envisagées et nous vous appellerons dès l’ouverture des réservations.", "card": "Dates et voyageurs", "fin": "Arrivée", "fout": "Départ", "guests": "Voyageurs", "name": "Nom et prénom", "phone": "Téléphone", "note": "Votre message (facultatif)", "send": "Envoyer la demande", "sample": "numéro d’exemple", "nights": {"one": "{n} nuit", "other": "{n} nuits"}, "eShort": "Le départ doit suivre l’arrivée", "eDates": "Choisissez vos dates d’arrivée et de départ.", "eOrder": "Le départ doit être postérieur à l’arrivée.", "eName": "Indiquez votre nom et prénom.", "ePhone": "Indiquez votre numéro de téléphone pour que nous puissions vous appeler.", "ok": "{dates}, {nights}, voyageurs : {g}. Votre demande est prête.", "demo": "Ceci est une démo : la demande n’a encore été envoyée nulle part. Une fois le site en ligne, ce formulaire parviendra à l’équipe de réservation.", "loc": "fr-FR"}, "de": {"contact": "Kontakt", "book": "Reservierung", "status": "Im Bau", "yomra": "Yomra", "trabzon": "Trabzon", "h1": "Elite-Bungalowhotel", "ud": "Tage", "uh": "Stunden", "um": "Minuten", "us": "Sekunden", "sub": "Vonoz ist ein Elite-Bungalowhotel, das in Yomra, Trabzon, entsteht. Schon vor der Eröffnung können Sie eine Voranfrage hinterlassen.", "cta": "Voranfrage senden", "lede": "Das Hotel ist noch im Bau. Nennen Sie uns Ihre Wunschtermine, und wir rufen Sie an, sobald Reservierungen möglich sind.", "card": "Termin und Gäste", "fin": "Anreise", "fout": "Abreise", "guests": "Personen", "name": "Vor- und Nachname", "phone": "Telefon", "note": "Ihre Nachricht (optional)", "send": "Anfrage senden", "sample": "Beispielnummer", "nights": {"one": "{n} Nacht", "other": "{n} Nächte"}, "eShort": "Abreise muss nach der Anreise liegen", "eDates": "Bitte wählen Sie An- und Abreisedatum.", "eOrder": "Die Abreise muss nach der Anreise liegen.", "eName": "Bitte geben Sie Ihren Namen ein.", "ePhone": "Bitte geben Sie Ihre Telefonnummer an, damit wir Sie anrufen können.", "ok": "{dates}, {nights}, Personen: {g}. Ihre Anfrage ist bereit.", "demo": "Dies ist eine Demo: Die Anfrage wurde noch nirgendwohin gesendet. Sobald die Website live ist, erreicht dieses Formular das Reservierungsteam.", "loc": "de-DE"}};
+  var EXTRA = { tr: ["Talebiniz hazır", "Yeni talep"], en: ["Your request is ready", "New request"], ar: ["طلبكم جاهز", "طلب جديد"],
+                ru: ["Ваша заявка готова", "Новая заявка"], fr: ["Votre demande est prête", "Nouvelle demande"], de: ["Ihre Anfrage ist bereit", "Neue Anfrage"] };
+  Object.keys(EXTRA).forEach(function (k) { T[k].doneTitle = EXTRA[k][0]; T[k].again = EXTRA[k][1]; });
+  function buzz(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} }   /* a light tap on phones that support it */
+  var lampBoost = 0, wx = { rain: 0, cloud: 0 };
   var lang = "tr", L = T.tr, refreshForm = function () {};
   function nightsText(n) {
     var cat = "other";
@@ -664,7 +742,7 @@ void main() {
     });
     document.getElementById("lang-menu").addEventListener("click", function (e) {
       var b = e.target.closest("button[data-lang]"); if (!b) return;
-      setLang(b.getAttribute("data-lang"), true); close(); btn.focus();
+      setLang(b.getAttribute("data-lang"), true); close(); btn.focus(); buzz(8);
     });
     document.addEventListener("click", function (e) { if (!wrap.contains(e.target)) close(); });
     document.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
@@ -704,14 +782,79 @@ void main() {
   var OPENING = Date.parse("2027-08-02T00:00:00+03:00");
   var cEl = { d: document.getElementById("c-d"), h: document.getElementById("c-h"), m: document.getElementById("c-m"), s: document.getElementById("c-s") };
   function pad(n) { return String(n).padStart(2, "0"); }
+  function put(el, v) {                       /* the wooden plaque flips when its number changes */
+    if (el.textContent === v) return;
+    var first = el.textContent.charAt(0) === "-";
+    el.textContent = v;
+    if (first) return;
+    el.classList.remove("flip"); void el.offsetWidth; el.classList.add("flip");
+  }
   function countdown() {
     var left = Math.max(0, OPENING - Date.now()), sec = Math.floor(left / 1000);
-    cEl.d.textContent = Math.floor(sec / 86400);
-    cEl.h.textContent = pad(Math.floor(sec % 86400 / 3600));
-    cEl.m.textContent = pad(Math.floor(sec % 3600 / 60));
-    cEl.s.textContent = pad(sec % 60);
+    put(cEl.d, String(Math.floor(sec / 86400)));
+    put(cEl.h, pad(Math.floor(sec % 86400 / 3600)));
+    put(cEl.m, pad(Math.floor(sec % 3600 / 60)));
+    put(cEl.s, pad(sec % 60));
   }
   countdown(); setInterval(countdown, 1000);
+
+  /* ----- live weather in Yomra shapes the sky (open-meteo.com, no key needed) ----- */
+  try {
+    fetch("https://api.open-meteo.com/v1/forecast?latitude=40.955&longitude=39.85&current=temperature_2m,precipitation,cloud_cover,weather_code")
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        var c = d.current || {};
+        if (typeof c.temperature_2m === "number") document.getElementById("temp").textContent = " · " + Math.round(c.temperature_2m) + "°C";
+        var fog = c.weather_code === 45 || c.weather_code === 48;
+        wx.cloud = Math.min(1, Math.max(fog ? .9 : 0, (c.cloud_cover || 0) / 100));
+        wx.rain = c.precipitation > 0 ? Math.min(1, .4 + c.precipitation / 1.5) : 0;
+        if (sound) sound.setRain(wx.rain);
+      }).catch(function () {});
+  } catch (e) {}
+
+  /* ----- night ambience, made in the browser: sea, wind, crickets after dark, rain when it rains ----- */
+  var sound = null, soundBtn = document.getElementById("sound");
+  function makeSound() {
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    var ctx = new AC(), master = ctx.createGain();
+    master.gain.value = 0; master.connect(ctx.destination);
+    function buffer(brown) {
+      var n = ctx.sampleRate * 3, b = ctx.createBuffer(1, n, ctx.sampleRate), d = b.getChannelData(0), last = 0;
+      for (var i = 0; i < n; i++) { var w = Math.random() * 2 - 1; if (brown) { last = (last + .02 * w) / 1.02; d[i] = last * 3.5; } else d[i] = w * .5; }
+      return b;
+    }
+    function loop(buf) { var s = ctx.createBufferSource(); s.buffer = buf; s.loop = true; s.start(); return s; }
+    function lfo(freq, depth, param) { var o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.value = freq; g.gain.value = depth; o.connect(g); g.connect(param); o.start(); }
+    var brown = buffer(true), white = buffer(false);
+    var seaF = ctx.createBiquadFilter(), seaG = ctx.createGain();           /* sea: slow swells of low noise */
+    seaF.type = "lowpass"; seaF.frequency.value = 480; seaG.gain.value = .3;
+    lfo(.09, .2, seaG.gain); lfo(.13, 160, seaF.frequency);
+    loop(brown).connect(seaF); seaF.connect(seaG); seaG.connect(master);
+    var windF = ctx.createBiquadFilter(), windG = ctx.createGain();         /* wind through the spruces */
+    windF.type = "bandpass"; windF.frequency.value = 820; windF.Q.value = .7; windG.gain.value = .035;
+    lfo(.05, 380, windF.frequency); lfo(.07, .02, windG.gain);
+    loop(white).connect(windF); windF.connect(windG); windG.connect(master);
+    var cr = ctx.createOscillator(), crA = ctx.createGain(), crB = ctx.createGain();   /* crickets */
+    cr.frequency.value = 4350; crA.gain.value = 0; crB.gain.value = .5;
+    lfo(27, 1, crA.gain); lfo(.85, .5, crB.gain);
+    cr.connect(crA); crA.connect(crB); var crOut = ctx.createGain(); crOut.gain.value = 0; crB.connect(crOut); crOut.connect(master); cr.start();
+    var rainF = ctx.createBiquadFilter(), rainG = ctx.createGain();
+    rainF.type = "highpass"; rainF.frequency.value = 1800; rainG.gain.value = 0;
+    loop(white).connect(rainF); rainF.connect(rainG); rainG.connect(master);
+    return {
+      set: function (on) { ctx.resume(); master.gain.cancelScheduledValues(ctx.currentTime); master.gain.linearRampToValueAtTime(on ? .55 : 0, ctx.currentTime + 1.4); },
+      setRain: function (r) { rainG.gain.value = r * .16; },
+      setNight: function (n) { crOut.gain.value = n > .3 && wx.rain < .2 ? .011 : 0; }
+    };
+  }
+  soundBtn.addEventListener("click", function () {
+    var on = soundBtn.getAttribute("aria-pressed") !== "true";
+    if (!sound) { try { sound = makeSound(); } catch (e) { sound = null; } }
+    if (!sound) return;
+    sound.setRain(wx.rain); sound.setNight(sky.stars || 0); sound.set(on);
+    soundBtn.setAttribute("aria-pressed", on ? "true" : "false"); buzz(8);
+  });
 
   /* ----- glass: highlight follows the pointer, large panes lean toward it ----- */
   var fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
@@ -768,7 +911,7 @@ void main() {
     gl.enableVertexAttribArray(loc);
     gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
     var U = {};
-    ["uRes", "uTime", "uMouse", "uScroll", "uIntro", "uLogo", "uLogoW", "uSkyTop", "uSkyMid", "uHaze", "uFar", "uLamp", "uStars"]
+    ["uRes", "uTime", "uMouse", "uScroll", "uIntro", "uLogo", "uLogoW", "uSkyTop", "uSkyMid", "uHaze", "uFar", "uLamp", "uStars", "uPtr", "uRain", "uCloud"]
       .forEach(function (n) { U[n] = gl.getUniformLocation(prog, n); });
 
     /* opening clock starts once the logo texture is ready */
@@ -794,7 +937,7 @@ void main() {
       if (!introDone && introStart !== null) introStart = Math.min(introStart, performance.now() - 2050);
     });
 
-    var target = { x: 0, y: 0 }, mouse = { x: 0, y: 0 }, scroll = 0, raf = 0, t0 = performance.now();
+    var target = { x: 0, y: 0 }, mouse = { x: 0, y: 0 }, ptr = { x: -9, y: -9 }, ptrT = { x: -9, y: -9 }, scroll = 0, raf = 0, t0 = performance.now();
     function resize() {
       var dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       var w = Math.round(canvas.clientWidth * dpr), h = Math.round(canvas.clientHeight * dpr);
@@ -820,7 +963,10 @@ void main() {
       gl.uniform1f(U.uLogoW, Math.min(.6, 520 / Math.max(canvas.clientWidth, 1)));
       gl.uniform3fv(U.uSkyTop, sky.top); gl.uniform3fv(U.uSkyMid, sky.mid);
       gl.uniform3fv(U.uHaze, sky.haze); gl.uniform3fv(U.uFar, sky.far);
-      gl.uniform1f(U.uLamp, sky.lamp); gl.uniform1f(U.uStars, sky.stars);
+      lampBoost *= .985;
+      if (ptr.x < -1) { ptr.x = ptrT.x; ptr.y = ptrT.y; } else { ptr.x += (ptrT.x - ptr.x) * .12; ptr.y += (ptrT.y - ptr.y) * .12; }
+      gl.uniform1f(U.uLamp, sky.lamp + lampBoost); gl.uniform1f(U.uStars, sky.stars);
+      gl.uniform2f(U.uPtr, ptr.x, ptr.y); gl.uniform1f(U.uRain, wx.rain); gl.uniform1f(U.uCloud, wx.cloud);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
       if ((!still || !introDone) && !document.hidden) raf = requestAnimationFrame(draw);
     }
@@ -828,6 +974,7 @@ void main() {
     window.addEventListener("pointermove", function (e) {
       target.x = (e.clientX / window.innerWidth) * 2 - 1;
       target.y = (e.clientY / window.innerHeight) * 2 - 1;
+      if (e.pointerType === "mouse") { ptrT.x = e.clientX / window.innerWidth; ptrT.y = 1 - e.clientY / window.innerHeight; }
     });
     window.addEventListener("resize", kick);
     window.addEventListener("scroll", kick, { passive: true });
@@ -856,7 +1003,7 @@ void main() {
     var n = nights();
     nightsEl.textContent = n === null ? "" : n > 0 ? nightsText(n) : L.eShort;
   }
-  refreshForm = refresh;
+  refreshForm = function () { refresh(); var d = document.getElementById("done"); if (d && !d.hidden) { d.hidden = true; form.hidden = false; } };
   fin.min = iso(new Date());
   fin.addEventListener("change", refresh);
   fout.addEventListener("change", refresh);
@@ -870,12 +1017,16 @@ void main() {
     if (n <= 0) { msg.textContent = L.eOrder; fout.focus(); return; }
     if (!name) { msg.textContent = L.eName; document.getElementById("f-name").focus(); return; }
     if (phone.replace(/\D/g, "").length < 10) { msg.textContent = L.ePhone; document.getElementById("f-phone").focus(); return; }
-    msg.textContent = L.ok.replace("{dates}", fmtDate(parse(fin.value)) + " – " + fmtDate(parse(fout.value)))
-      .replace("{nights}", nightsText(n)).replace("{g}", form.elements.kisi.value);
-    var note = document.createElement("small");
-    note.textContent = L.demo;
-    msg.appendChild(note);
+    msg.hidden = true;
+    document.getElementById("done-sum").textContent = fmtDate(parse(fin.value)) + " – " + fmtDate(parse(fout.value)) + " · " + nightsText(n) + " · " + L.guests + ": " + form.elements.kisi.value;
+    form.hidden = true; done.hidden = false; done.classList.remove("lit");
+    setTimeout(function () { done.classList.add("lit"); }, 60);
+    lampBoost = 1.6; buzz([14, 50, 22]);                       /* the cabins on the hillside glow brighter for a moment */
   });
+  var done = document.getElementById("done");
+  function backToForm() { done.hidden = true; form.hidden = false; }
+  document.getElementById("again").addEventListener("click", backToForm);
+  form.querySelectorAll('input[name="kisi"]').forEach(function (r) { r.addEventListener("change", function () { buzz(6); }); });
 })();
 </script>
 </body>
