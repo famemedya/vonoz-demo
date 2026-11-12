@@ -308,6 +308,12 @@ a.dock-item:hover { background: rgba(237, 240, 242, .1); }
 .field:focus-within::after { animation: glint .9s var(--ease); }
 @keyframes glint { from { left: -40%; opacity: 1; } to { left: 120%; opacity: 1; } }
 
+/* dates are shown in the page's own language; the browser's field sits invisibly on top and opens its calendar */
+.date-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 1.0625rem; padding: 2px 0; min-height: 1.75em; }
+.date-row.empty > span { color: rgba(201, 213, 207, .6); }
+.date-row svg { width: 18px; height: 18px; flex: none; fill: none; stroke: var(--mist); stroke-width: 1.5; stroke-linecap: round; }
+.field.date input[type="date"] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; padding: 0; }
+
 form[hidden], .done[hidden] { display: none; }
 .done { display: grid; justify-items: center; text-align: center; gap: 14px; padding: 8px 0 4px; animation: rise 1s var(--ease) both; }
 @keyframes rise { from { opacity: 0; transform: translateY(16px); } }
@@ -422,12 +428,14 @@ setTimeout(window.__show, 7000);
         <p class="book-lede" data-i18n="lede">Otel yapım aşamasında. Düşündüğünüz tarihleri bırakın, rezervasyonlar açıldığında sizi arayalım.</p>
       </header>
         <form id="book-form" novalidate>
-          <div class="field">
+          <div class="field date">
             <label class="label" for="f-in" data-i18n="fin">Giriş</label>
+            <span class="date-row"><span id="t-in"></span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14" rx="2.5"/><path d="M4 10h16M8.5 3.500v4M15.5 3.500v4"/></svg></span>
             <input type="date" id="f-in" name="giris" required>
           </div>
-          <div class="field">
+          <div class="field date">
             <label class="label" for="f-out" data-i18n="fout">Çıkış</label>
+            <span class="date-row"><span id="t-out"></span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14" rx="2.5"/><path d="M4 10h16M8.5 3.500v4M15.5 3.500v4"/></svg></span>
             <input type="date" id="f-out" name="cikis" required>
           </div>
           <div class="field wide" role="radiogroup" aria-labelledby="guests-label">
@@ -478,7 +486,7 @@ setTimeout(window.__show, 7000);
     <div class="dock glass reveal" aria-label="İletişim">
       <a class="dock-item" href="tel:0123456789">
         <span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.5 5.700a2 2 0 0 1 2-2.200z"/></svg></span>
-        <span class="dock-text"><b dir="ltr">0123 456 789</b><small data-i18n="sample">örnek numara</small></span>
+        <span class="dock-text"><b dir="ltr" id="phone-num">0123 456 789</b><small data-i18n="sample">örnek numara</small></span>
       </a>
       <span class="dock-sep" aria-hidden="true"></span>
       <span class="dock-item">
@@ -686,16 +694,26 @@ void main() {
   }
 
   /* ----- languages ----- */
-  var T = {"tr": {"contact": "İletişim", "book": "Rezervasyon", "status": "Yapım aşamasında", "yomra": "Yomra", "trabzon": "Trabzon", "h1": "Elit Bungalov Otel", "ud": "Gün", "uh": "Saat", "um": "Dakika", "us": "Saniye", "sub": "Vonoz, Trabzon Yomra’da yapımı süren elit bir bungalov oteli. Açılıştan önce ön talep bırakabilirsiniz.", "cta": "Ön talep bırak", "lede": "Otel yapım aşamasında. Düşündüğünüz tarihleri bırakın, rezervasyonlar açıldığında sizi arayalım.", "card": "Tarih ve misafir", "fin": "Giriş", "fout": "Çıkış", "guests": "Kişi sayısı", "name": "Ad soyad", "phone": "Telefon", "note": "Notunuz (isteğe bağlı)", "send": "Talep gönder", "sample": "örnek numara", "nights": {"other": "{n} gece"}, "eShort": "Çıkış girişten sonra olmalı", "eDates": "Giriş ve çıkış tarihlerini seçin.", "eOrder": "Çıkış tarihi girişten sonra olmalı.", "eName": "Adınızı ve soyadınızı yazın.", "ePhone": "Sizi arayabilmemiz için telefon numaranızı yazın.", "ok": "{dates}, {nights}, {g} kişi için talebiniz hazır.", "demo": "Bu bir demo: talep henüz hiçbir yere iletilmedi. Site yayına alındığında bu form rezervasyon ekibine ulaşacak.", "loc": "tr-TR"}, "en": {"contact": "Contact", "book": "Reservation", "status": "Under construction", "yomra": "Yomra", "trabzon": "Trabzon", "h1": "Elite Bungalow Hotel", "ud": "Days", "uh": "Hours", "um": "Minutes", "us": "Seconds", "sub": "Vonoz is an elite bungalow hotel under construction in Yomra, Trabzon. You can leave a pre-booking request before we open.", "cta": "Leave a request", "lede": "The hotel is under construction. Leave the dates you have in mind and we will call you when reservations open.", "card": "Dates and guests", "fin": "Check-in", "fout": "Check-out", "guests": "Guests", "name": "Full name", "phone": "Phone", "note": "Your note (optional)", "send": "Send request", "sample": "sample number", "nights": {"one": "{n} night", "other": "{n} nights"}, "eShort": "Check-out must be after check-in", "eDates": "Choose your check-in and check-out dates.", "eOrder": "Check-out must be after check-in.", "eName": "Enter your full name.", "ePhone": "Enter your phone number so we can call you.", "ok": "{dates}, {nights}, guests: {g}. Your request is ready.", "demo": "This is a demo: the request has not been sent anywhere yet. Once the site is live, this form will reach the reservations team.", "loc": "en-GB"}, "ar": {"contact": "تواصل معنا", "book": "الحجز", "status": "قيد الإنشاء", "yomra": "يومرا", "trabzon": "طرابزون", "h1": "فندق أكواخ النخبة", "ud": "أيام", "uh": "ساعات", "um": "دقائق", "us": "ثوانٍ", "sub": "فونوز فندق أكواخ للنخبة قيد الإنشاء في يومرا، طرابزون. يمكنكم ترك طلب حجز مبدئي قبل الافتتاح.", "cta": "اترك طلبًا", "lede": "الفندق قيد الإنشاء. اتركوا التواريخ التي تفكرون فيها وسنتصل بكم عند فتح باب الحجز.", "card": "التواريخ والضيوف", "fin": "الوصول", "fout": "المغادرة", "guests": "عدد الأشخاص", "name": "الاسم الكامل", "phone": "الهاتف", "note": "ملاحظتكم (اختياري)", "send": "إرسال الطلب", "sample": "رقم تجريبي", "nights": {"one": "ليلة واحدة", "two": "ليلتان", "few": "{n} ليالٍ", "many": "{n} ليلة", "other": "{n} ليلة"}, "eShort": "المغادرة يجب أن تكون بعد الوصول", "eDates": "اختاروا تاريخي الوصول والمغادرة.", "eOrder": "يجب أن يكون تاريخ المغادرة بعد تاريخ الوصول.", "eName": "اكتبوا الاسم الكامل.", "ePhone": "اكتبوا رقم الهاتف لنتمكن من الاتصال بكم.", "ok": "{dates}، {nights}، عدد الأشخاص: {g}. طلبكم جاهز.", "demo": "هذه نسخة تجريبية: لم يُرسل الطلب إلى أي جهة بعد. عند إطلاق الموقع سيصل هذا النموذج إلى فريق الحجز.", "loc": "ar-u-nu-latn"}, "ru": {"contact": "Контакты", "book": "Бронирование", "status": "Строится", "yomra": "Йомра", "trabzon": "Трабзон", "h1": "Элитный Бунгало-Отель", "ud": "Дни", "uh": "Часы", "um": "Минуты", "us": "Секунды", "sub": "Vonoz — элитный отель с бунгало, который строится в Йомре, Трабзон. Оставить предварительную заявку можно уже сейчас.", "cta": "Оставить заявку", "lede": "Отель ещё строится. Укажите желаемые даты, и мы позвоним вам, когда откроется бронирование.", "card": "Даты и гости", "fin": "Заезд", "fout": "Выезд", "guests": "Гости", "name": "Имя и фамилия", "phone": "Телефон", "note": "Комментарий (необязательно)", "send": "Отправить заявку", "sample": "номер для примера", "nights": {"one": "{n} ночь", "few": "{n} ночи", "many": "{n} ночей", "other": "{n} ночи"}, "eShort": "Выезд должен быть позже заезда", "eDates": "Выберите даты заезда и выезда.", "eOrder": "Дата выезда должна быть позже даты заезда.", "eName": "Укажите имя и фамилию.", "ePhone": "Укажите номер телефона, чтобы мы могли вам позвонить.", "ok": "{dates}, {nights}, гостей: {g}. Ваша заявка готова.", "demo": "Это демоверсия: заявка пока никуда не отправлена. Когда сайт заработает, форма будет поступать в отдел бронирования.", "loc": "ru-RU"}, "fr": {"contact": "Contact", "book": "Réservation", "status": "En construction", "yomra": "Yomra", "trabzon": "Trabzon", "h1": "Hôtel Bungalow d’Élite", "ud": "Jours", "uh": "Heures", "um": "Minutes", "us": "Secondes", "sub": "Vonoz est un hôtel de bungalows d’élite en construction à Yomra, Trabzon. Vous pouvez laisser une demande de préréservation avant l’ouverture.", "cta": "Laisser une demande", "lede": "L’hôtel est en construction. Indiquez les dates envisagées et nous vous appellerons dès l’ouverture des réservations.", "card": "Dates et voyageurs", "fin": "Arrivée", "fout": "Départ", "guests": "Voyageurs", "name": "Nom et prénom", "phone": "Téléphone", "note": "Votre message (facultatif)", "send": "Envoyer la demande", "sample": "numéro d’exemple", "nights": {"one": "{n} nuit", "other": "{n} nuits"}, "eShort": "Le départ doit suivre l’arrivée", "eDates": "Choisissez vos dates d’arrivée et de départ.", "eOrder": "Le départ doit être postérieur à l’arrivée.", "eName": "Indiquez votre nom et prénom.", "ePhone": "Indiquez votre numéro de téléphone pour que nous puissions vous appeler.", "ok": "{dates}, {nights}, voyageurs : {g}. Votre demande est prête.", "demo": "Ceci est une démo : la demande n’a encore été envoyée nulle part. Une fois le site en ligne, ce formulaire parviendra à l’équipe de réservation.", "loc": "fr-FR"}, "de": {"contact": "Kontakt", "book": "Reservierung", "status": "Im Bau", "yomra": "Yomra", "trabzon": "Trabzon", "h1": "Elite-Bungalowhotel", "ud": "Tage", "uh": "Stunden", "um": "Minuten", "us": "Sekunden", "sub": "Vonoz ist ein Elite-Bungalowhotel, das in Yomra, Trabzon, entsteht. Schon vor der Eröffnung können Sie eine Voranfrage hinterlassen.", "cta": "Voranfrage senden", "lede": "Das Hotel ist noch im Bau. Nennen Sie uns Ihre Wunschtermine, und wir rufen Sie an, sobald Reservierungen möglich sind.", "card": "Termin und Gäste", "fin": "Anreise", "fout": "Abreise", "guests": "Personen", "name": "Vor- und Nachname", "phone": "Telefon", "note": "Ihre Nachricht (optional)", "send": "Anfrage senden", "sample": "Beispielnummer", "nights": {"one": "{n} Nacht", "other": "{n} Nächte"}, "eShort": "Abreise muss nach der Anreise liegen", "eDates": "Bitte wählen Sie An- und Abreisedatum.", "eOrder": "Die Abreise muss nach der Anreise liegen.", "eName": "Bitte geben Sie Ihren Namen ein.", "ePhone": "Bitte geben Sie Ihre Telefonnummer an, damit wir Sie anrufen können.", "ok": "{dates}, {nights}, Personen: {g}. Ihre Anfrage ist bereit.", "demo": "Dies ist eine Demo: Die Anfrage wurde noch nirgendwohin gesendet. Sobald die Website live ist, erreicht dieses Formular das Reservierungsteam.", "loc": "de-DE"}};
+  var T = {"tr": {"contact": "İletişim", "book": "Rezervasyon", "status": "Yapım aşamasında", "yomra": "Yomra", "trabzon": "Trabzon", "h1": "Elit Bungalov Otel", "ud": "Gün", "uh": "Saat", "um": "Dakika", "us": "Saniye", "sub": "Vonoz, Trabzon Yomra’da yapımı süren elit bir bungalov oteli. Açılıştan önce ön talep bırakabilirsiniz.", "cta": "Ön talep bırak", "lede": "Otel yapım aşamasında. Düşündüğünüz tarihleri bırakın, rezervasyonlar açıldığında sizi arayalım.", "card": "Tarih ve misafir", "fin": "Giriş", "fout": "Çıkış", "guests": "Kişi sayısı", "name": "Ad soyad", "phone": "Telefon", "note": "Notunuz (isteğe bağlı)", "send": "Talep gönder", "sample": "örnek numara", "nights": {"other": "{n} gece"}, "eShort": "Çıkış girişten sonra olmalı", "eDates": "Giriş ve çıkış tarihlerini seçin.", "eOrder": "Çıkış tarihi girişten sonra olmalı.", "eName": "Adınızı ve soyadınızı yazın.", "ePhone": "Sizi arayabilmemiz için telefon numaranızı yazın.", "ok": "{dates}, {nights}, {g} kişi için talebiniz hazır.", "demo": "Bu bir demo: talep henüz hiçbir yere iletilmedi. Site yayına alındığında bu form rezervasyon ekibine ulaşacak.", "loc": "tr-TR"}, "en": {"contact": "Contact", "book": "Reservation", "status": "Under construction", "yomra": "Yomra", "trabzon": "Trabzon", "h1": "Elite Bungalow Hotel", "ud": "Days", "uh": "Hours", "um": "Minutes", "us": "Seconds", "sub": "Vonoz is an elite bungalow hotel under construction in Yomra, Trabzon. You can leave a pre-booking request before we open.", "cta": "Leave a request", "lede": "The hotel is under construction. Leave the dates you have in mind and we will call you when reservations open.", "card": "Dates and guests", "fin": "Check-in", "fout": "Check-out", "guests": "Guests", "name": "Full name", "phone": "Phone", "note": "Your note (optional)", "send": "Send request", "sample": "sample number", "nights": {"one": "{n} night", "other": "{n} nights"}, "eShort": "Check-out must be after check-in", "eDates": "Choose your check-in and check-out dates.", "eOrder": "Check-out must be after check-in.", "eName": "Enter your full name.", "ePhone": "Enter your phone number so we can call you.", "ok": "{dates}, {nights}, guests: {g}. Your request is ready.", "demo": "This is a demo: the request has not been sent anywhere yet. Once the site is live, this form will reach the reservations team.", "loc": "en-GB"}, "ar": {"contact": "تواصل معنا", "book": "الحجز", "status": "قيد الإنشاء", "yomra": "يومرا", "trabzon": "طرابزون", "h1": "فندق أكواخ النخبة", "ud": "أيام", "uh": "ساعات", "um": "دقائق", "us": "ثوانٍ", "sub": "فونوز فندق أكواخ للنخبة قيد الإنشاء في يومرا، طرابزون. يمكنكم ترك طلب حجز مبدئي قبل الافتتاح.", "cta": "اترك طلبًا", "lede": "الفندق قيد الإنشاء. اتركوا التواريخ التي تفكرون فيها وسنتصل بكم عند فتح باب الحجز.", "card": "التواريخ والضيوف", "fin": "الوصول", "fout": "المغادرة", "guests": "عدد الأشخاص", "name": "الاسم الكامل", "phone": "الهاتف", "note": "ملاحظتكم (اختياري)", "send": "إرسال الطلب", "sample": "رقم تجريبي", "nights": {"one": "ليلة واحدة", "two": "ليلتان", "few": "{n} ليالٍ", "many": "{n} ليلة", "other": "{n} ليلة"}, "eShort": "المغادرة يجب أن تكون بعد الوصول", "eDates": "اختاروا تاريخي الوصول والمغادرة.", "eOrder": "يجب أن يكون تاريخ المغادرة بعد تاريخ الوصول.", "eName": "اكتبوا الاسم الكامل.", "ePhone": "اكتبوا رقم الهاتف لنتمكن من الاتصال بكم.", "ok": "{dates}، {nights}، عدد الأشخاص: {g}. طلبكم جاهز.", "demo": "هذه نسخة تجريبية: لم يُرسل الطلب إلى أي جهة بعد. عند إطلاق الموقع سيصل هذا النموذج إلى فريق الحجز.", "loc": "ar-EG"}, "ru": {"contact": "Контакты", "book": "Бронирование", "status": "Строится", "yomra": "Йомра", "trabzon": "Трабзон", "h1": "Элитный Бунгало-Отель", "ud": "Дни", "uh": "Часы", "um": "Минуты", "us": "Секунды", "sub": "Vonoz — элитный отель с бунгало, который строится в Йомре, Трабзон. Оставить предварительную заявку можно уже сейчас.", "cta": "Оставить заявку", "lede": "Отель ещё строится. Укажите желаемые даты, и мы позвоним вам, когда откроется бронирование.", "card": "Даты и гости", "fin": "Заезд", "fout": "Выезд", "guests": "Гости", "name": "Имя и фамилия", "phone": "Телефон", "note": "Комментарий (необязательно)", "send": "Отправить заявку", "sample": "номер для примера", "nights": {"one": "{n} ночь", "few": "{n} ночи", "many": "{n} ночей", "other": "{n} ночи"}, "eShort": "Выезд должен быть позже заезда", "eDates": "Выберите даты заезда и выезда.", "eOrder": "Дата выезда должна быть позже даты заезда.", "eName": "Укажите имя и фамилию.", "ePhone": "Укажите номер телефона, чтобы мы могли вам позвонить.", "ok": "{dates}, {nights}, гостей: {g}. Ваша заявка готова.", "demo": "Это демоверсия: заявка пока никуда не отправлена. Когда сайт заработает, форма будет поступать в отдел бронирования.", "loc": "ru-RU"}, "fr": {"contact": "Contact", "book": "Réservation", "status": "En construction", "yomra": "Yomra", "trabzon": "Trabzon", "h1": "Hôtel Bungalow d’Élite", "ud": "Jours", "uh": "Heures", "um": "Minutes", "us": "Secondes", "sub": "Vonoz est un hôtel de bungalows d’élite en construction à Yomra, Trabzon. Vous pouvez laisser une demande de préréservation avant l’ouverture.", "cta": "Laisser une demande", "lede": "L’hôtel est en construction. Indiquez les dates envisagées et nous vous appellerons dès l’ouverture des réservations.", "card": "Dates et voyageurs", "fin": "Arrivée", "fout": "Départ", "guests": "Voyageurs", "name": "Nom et prénom", "phone": "Téléphone", "note": "Votre message (facultatif)", "send": "Envoyer la demande", "sample": "numéro d’exemple", "nights": {"one": "{n} nuit", "other": "{n} nuits"}, "eShort": "Le départ doit suivre l’arrivée", "eDates": "Choisissez vos dates d’arrivée et de départ.", "eOrder": "Le départ doit être postérieur à l’arrivée.", "eName": "Indiquez votre nom et prénom.", "ePhone": "Indiquez votre numéro de téléphone pour que nous puissions vous appeler.", "ok": "{dates}, {nights}, voyageurs : {g}. Votre demande est prête.", "demo": "Ceci est une démo : la demande n’a encore été envoyée nulle part. Une fois le site en ligne, ce formulaire parviendra à l’équipe de réservation.", "loc": "fr-FR"}, "de": {"contact": "Kontakt", "book": "Reservierung", "status": "Im Bau", "yomra": "Yomra", "trabzon": "Trabzon", "h1": "Elite-Bungalowhotel", "ud": "Tage", "uh": "Stunden", "um": "Minuten", "us": "Sekunden", "sub": "Vonoz ist ein Elite-Bungalowhotel, das in Yomra, Trabzon, entsteht. Schon vor der Eröffnung können Sie eine Voranfrage hinterlassen.", "cta": "Voranfrage senden", "lede": "Das Hotel ist noch im Bau. Nennen Sie uns Ihre Wunschtermine, und wir rufen Sie an, sobald Reservierungen möglich sind.", "card": "Termin und Gäste", "fin": "Anreise", "fout": "Abreise", "guests": "Personen", "name": "Vor- und Nachname", "phone": "Telefon", "note": "Ihre Nachricht (optional)", "send": "Anfrage senden", "sample": "Beispielnummer", "nights": {"one": "{n} Nacht", "other": "{n} Nächte"}, "eShort": "Abreise muss nach der Anreise liegen", "eDates": "Bitte wählen Sie An- und Abreisedatum.", "eOrder": "Die Abreise muss nach der Anreise liegen.", "eName": "Bitte geben Sie Ihren Namen ein.", "ePhone": "Bitte geben Sie Ihre Telefonnummer an, damit wir Sie anrufen können.", "ok": "{dates}, {nights}, Personen: {g}. Ihre Anfrage ist bereit.", "demo": "Dies ist eine Demo: Die Anfrage wurde noch nirgendwohin gesendet. Sobald die Website live ist, erreicht dieses Formular das Reservierungsteam.", "loc": "de-DE"}};
   var EXTRA = { tr: ["Talebiniz hazır", "Yeni talep"], en: ["Your request is ready", "New request"], ar: ["طلبكم جاهز", "طلب جديد"],
                 ru: ["Ваша заявка готова", "Новая заявка"], fr: ["Votre demande est prête", "Nouvelle demande"], de: ["Ihre Anfrage ist bereit", "Neue Anfrage"] };
-  Object.keys(EXTRA).forEach(function (k) { T[k].doneTitle = EXTRA[k][0]; T[k].again = EXTRA[k][1]; });
-  var lampBoost = 0, wx = { rain: 0, cloud: 0 };
+  var PICK = { tr: "Tarih seçin", en: "Select a date", ar: "اختر التاريخ", ru: "Выберите дату", fr: "Choisir une date", de: "Datum wählen" };
+  Object.keys(EXTRA).forEach(function (k) { T[k].doneTitle = EXTRA[k][0]; T[k].again = EXTRA[k][1]; T[k].pick = PICK[k]; });
+  var lampBoost = 0, wx = { rain: 0, cloud: 0, temp: null };
   var lang = "tr", L = T.tr, refreshForm = function () {};
+  function D(v) {                              /* Arabic pages use Arabic-Indic digits */
+    return lang === "ar" ? String(v).replace(/[0-9]/g, function (d) { return "٠١٢٣٤٥٦٧٨٩".charAt(+d); }) : String(v);
+  }
+  function renderNumbers() {
+    document.querySelectorAll(".seg label").forEach(function (l) { l.textContent = D(l.htmlFor === "g5" ? "5+" : l.htmlFor.slice(1)); });
+    document.getElementById("phone-num").textContent = D("0123 456 789");
+    if (wx.temp !== null) document.getElementById("temp").textContent = " · " + D(wx.temp) + "°C";
+    tick(); countdown();
+  }
   function nightsText(n) {
     var cat = "other";
     try { cat = new Intl.PluralRules(lang).select(n); } catch (e) {}
-    return (L.nights[cat] || L.nights.other).replace("{n}", n);
+    return (L.nights[cat] || L.nights.other).replace("{n}", D(n));
   }
   function fitTitle() {
     var h = document.getElementById("title");
@@ -714,6 +732,7 @@ void main() {
     document.querySelectorAll("#lang-menu button").forEach(function (b) { b.setAttribute("aria-current", b.getAttribute("data-lang") === code ? "true" : "false"); });
     document.getElementById("form-msg").hidden = true;
     refreshForm(); fitTitle();
+    try { renderNumbers(); } catch (e) {}
     if (save) { try { localStorage.setItem("vonoz-lang", code); } catch (e) {} }
   }
   (function () {
@@ -749,7 +768,7 @@ void main() {
   function lerp(a, b, t) { return a + (b - a) * t; }
   function tick() {
     var parts = tf.format(new Date()).split(/[.:]/), h = (+parts[0] % 24) + (+parts[1]) / 60;
-    clockEl.textContent = parts[0] + ":" + parts[1];
+    clockEl.textContent = D(parts[0] + ":" + parts[1]);
     for (var i = 0; i < KEYS.length - 1; i++) {
       if (h >= KEYS[i][0] && h <= KEYS[i + 1][0]) {
         var a = SKY[KEYS[i][1]], b = SKY[KEYS[i + 1][1]], t = (h - KEYS[i][0]) / (KEYS[i + 1][0] - KEYS[i][0]);
@@ -766,6 +785,7 @@ void main() {
   var cEl = { d: document.getElementById("c-d"), h: document.getElementById("c-h"), m: document.getElementById("c-m"), s: document.getElementById("c-s") };
   function pad(n) { return String(n).padStart(2, "0"); }
   function put(el, v) {                       /* the wooden plaque flips when its number changes */
+    v = D(v);
     if (el.textContent === v) return;
     var first = el.textContent.charAt(0) === "-";
     el.textContent = v;
@@ -787,7 +807,7 @@ void main() {
       .then(function (r) { return r.json(); })
       .then(function (d) {
         var c = d.current || {};
-        if (typeof c.temperature_2m === "number") document.getElementById("temp").textContent = " · " + Math.round(c.temperature_2m) + "°C";
+        if (typeof c.temperature_2m === "number") { wx.temp = Math.round(c.temperature_2m); document.getElementById("temp").textContent = " · " + D(wx.temp) + "°C"; }
         var fog = c.weather_code === 45 || c.weather_code === 48;
         wx.cloud = Math.min(1, Math.max(fog ? .9 : 0, (c.cloud_cover || 0) / 100));
         wx.rain = c.precipitation > 0 ? Math.min(1, .4 + c.precipitation / 1.5) : 0;
@@ -938,11 +958,18 @@ void main() {
       var next = parse(fin.value); next.setDate(next.getDate() + 1);
       fout.min = iso(next);
     }
+    [[fin, "t-in"], [fout, "t-out"]].forEach(function (pair) {
+      var el = document.getElementById(pair[1]), d = parse(pair[0].value);
+      el.textContent = d ? new Intl.DateTimeFormat(L.loc, { day: "numeric", month: "long", year: "numeric" }).format(d) : L.pick;
+      el.parentElement.classList.toggle("empty", !d);
+    });
     var n = nights();
     nightsEl.textContent = n === null ? "" : n > 0 ? nightsText(n) : L.eShort;
   }
+  refresh();
   refreshForm = function () { refresh(); var d = document.getElementById("done"); if (d && !d.hidden) { d.hidden = true; form.hidden = false; } };
   fin.min = iso(new Date());
+  [fin, fout].forEach(function (i) { i.addEventListener("click", function () { try { i.showPicker(); } catch (e) {} }); });
   fin.addEventListener("change", refresh);
   fout.addEventListener("change", refresh);
 
@@ -956,7 +983,7 @@ void main() {
     if (!name) { msg.textContent = L.eName; document.getElementById("f-name").focus(); return; }
     if (phone.replace(/\D/g, "").length < 10) { msg.textContent = L.ePhone; document.getElementById("f-phone").focus(); return; }
     msg.hidden = true;
-    document.getElementById("done-sum").textContent = fmtDate(parse(fin.value)) + " – " + fmtDate(parse(fout.value)) + " · " + nightsText(n) + " · " + L.guests + ": " + form.elements.kisi.value;
+    document.getElementById("done-sum").textContent = fmtDate(parse(fin.value)) + " – " + fmtDate(parse(fout.value)) + " · " + nightsText(n) + " · " + L.guests + ": " + D(form.elements.kisi.value);
     form.hidden = true; done.hidden = false; done.classList.remove("lit");
     setTimeout(function () { done.classList.add("lit"); }, 60);
     lampBoost = 1.6;                       /* the cabins on the hillside glow brighter for a moment */
