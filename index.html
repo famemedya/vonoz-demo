@@ -319,18 +319,6 @@ form[hidden], .done[hidden] { display: none; }
 .done small { color: var(--mist); font-size: .9rem; max-width: 46ch; }
 .done .btn { margin-top: 8px; }
 
-.sound {
-  position: fixed; z-index: 19; bottom: 18px; inset-inline-end: 18px; width: 52px; height: 52px; border-radius: 50%;
-  display: grid; place-items: center; cursor: pointer; color: var(--paper); padding: 0;
-}
-.sound svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
-.sound .waves { opacity: 0; transition: opacity .4s; }
-.sound .mute { transition: opacity .4s; }
-.sound[aria-pressed="true"] { color: var(--lamp); }
-.sound[aria-pressed="true"] .waves { opacity: 1; }
-.sound[aria-pressed="true"] .mute { opacity: 0; }
-.pre .sound { opacity: 0; pointer-events: none; }
-
 /* ---------- Footer ---------- */
 footer { padding: clamp(56px, 10vh, 110px) var(--gutter) clamp(40px, 7vh, 72px); display: grid; place-items: center; }
 footer .logo-vonoz { width: min(46vw, 210px); color: var(--paper); animation: breathe 4.6s ease-in-out infinite alternate; }
@@ -507,10 +495,6 @@ setTimeout(window.__show, 7000);
     </div>
   </div>
 </main>
-
-<button class="sound glass enter" id="sound" type="button" aria-pressed="false" aria-label="Ses / Sound" style="--i:4">
-  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.500v5h3.500L12 18.500v-13L7.5 9.500z"/><path class="waves" d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.500a7.8 7.8 0 0 1 0 11"/><path class="mute" d="M16 9.500l5 5M21 9.500l-5 5"/></svg>
-</button>
 
 <footer>
   <span class="logo-vonoz" role="img" aria-label="Vonoz"></span>
@@ -706,7 +690,6 @@ void main() {
   var EXTRA = { tr: ["Talebiniz hazır", "Yeni talep"], en: ["Your request is ready", "New request"], ar: ["طلبكم جاهز", "طلب جديد"],
                 ru: ["Ваша заявка готова", "Новая заявка"], fr: ["Votre demande est prête", "Nouvelle demande"], de: ["Ihre Anfrage ist bereit", "Neue Anfrage"] };
   Object.keys(EXTRA).forEach(function (k) { T[k].doneTitle = EXTRA[k][0]; T[k].again = EXTRA[k][1]; });
-  function buzz(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} }   /* a light tap on phones that support it */
   var lampBoost = 0, wx = { rain: 0, cloud: 0 };
   var lang = "tr", L = T.tr, refreshForm = function () {};
   function nightsText(n) {
@@ -742,7 +725,7 @@ void main() {
     });
     document.getElementById("lang-menu").addEventListener("click", function (e) {
       var b = e.target.closest("button[data-lang]"); if (!b) return;
-      setLang(b.getAttribute("data-lang"), true); close(); btn.focus(); buzz(8);
+      setLang(b.getAttribute("data-lang"), true); close(); btn.focus();
     });
     document.addEventListener("click", function (e) { if (!wrap.contains(e.target)) close(); });
     document.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
@@ -808,53 +791,8 @@ void main() {
         var fog = c.weather_code === 45 || c.weather_code === 48;
         wx.cloud = Math.min(1, Math.max(fog ? .9 : 0, (c.cloud_cover || 0) / 100));
         wx.rain = c.precipitation > 0 ? Math.min(1, .4 + c.precipitation / 1.5) : 0;
-        if (sound) sound.setRain(wx.rain);
       }).catch(function () {});
   } catch (e) {}
-
-  /* ----- night ambience, made in the browser: sea, wind, crickets after dark, rain when it rains ----- */
-  var sound = null, soundBtn = document.getElementById("sound");
-  function makeSound() {
-    var AC = window.AudioContext || window.webkitAudioContext;
-    if (!AC) return null;
-    var ctx = new AC(), master = ctx.createGain();
-    master.gain.value = 0; master.connect(ctx.destination);
-    function buffer(brown) {
-      var n = ctx.sampleRate * 3, b = ctx.createBuffer(1, n, ctx.sampleRate), d = b.getChannelData(0), last = 0;
-      for (var i = 0; i < n; i++) { var w = Math.random() * 2 - 1; if (brown) { last = (last + .02 * w) / 1.02; d[i] = last * 3.5; } else d[i] = w * .5; }
-      return b;
-    }
-    function loop(buf) { var s = ctx.createBufferSource(); s.buffer = buf; s.loop = true; s.start(); return s; }
-    function lfo(freq, depth, param) { var o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.value = freq; g.gain.value = depth; o.connect(g); g.connect(param); o.start(); }
-    var brown = buffer(true), white = buffer(false);
-    var seaF = ctx.createBiquadFilter(), seaG = ctx.createGain();           /* sea: slow swells of low noise */
-    seaF.type = "lowpass"; seaF.frequency.value = 480; seaG.gain.value = .3;
-    lfo(.09, .2, seaG.gain); lfo(.13, 160, seaF.frequency);
-    loop(brown).connect(seaF); seaF.connect(seaG); seaG.connect(master);
-    var windF = ctx.createBiquadFilter(), windG = ctx.createGain();         /* wind through the spruces */
-    windF.type = "bandpass"; windF.frequency.value = 820; windF.Q.value = .7; windG.gain.value = .035;
-    lfo(.05, 380, windF.frequency); lfo(.07, .02, windG.gain);
-    loop(white).connect(windF); windF.connect(windG); windG.connect(master);
-    var cr = ctx.createOscillator(), crA = ctx.createGain(), crB = ctx.createGain();   /* crickets */
-    cr.frequency.value = 4350; crA.gain.value = 0; crB.gain.value = .5;
-    lfo(27, 1, crA.gain); lfo(.85, .5, crB.gain);
-    cr.connect(crA); crA.connect(crB); var crOut = ctx.createGain(); crOut.gain.value = 0; crB.connect(crOut); crOut.connect(master); cr.start();
-    var rainF = ctx.createBiquadFilter(), rainG = ctx.createGain();
-    rainF.type = "highpass"; rainF.frequency.value = 1800; rainG.gain.value = 0;
-    loop(white).connect(rainF); rainF.connect(rainG); rainG.connect(master);
-    return {
-      set: function (on) { ctx.resume(); master.gain.cancelScheduledValues(ctx.currentTime); master.gain.linearRampToValueAtTime(on ? .55 : 0, ctx.currentTime + 1.4); },
-      setRain: function (r) { rainG.gain.value = r * .16; },
-      setNight: function (n) { crOut.gain.value = n > .3 && wx.rain < .2 ? .011 : 0; }
-    };
-  }
-  soundBtn.addEventListener("click", function () {
-    var on = soundBtn.getAttribute("aria-pressed") !== "true";
-    if (!sound) { try { sound = makeSound(); } catch (e) { sound = null; } }
-    if (!sound) return;
-    sound.setRain(wx.rain); sound.setNight(sky.stars || 0); sound.set(on);
-    soundBtn.setAttribute("aria-pressed", on ? "true" : "false"); buzz(8);
-  });
 
   /* ----- glass: highlight follows the pointer, large panes lean toward it ----- */
   var fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
@@ -1021,12 +959,11 @@ void main() {
     document.getElementById("done-sum").textContent = fmtDate(parse(fin.value)) + " – " + fmtDate(parse(fout.value)) + " · " + nightsText(n) + " · " + L.guests + ": " + form.elements.kisi.value;
     form.hidden = true; done.hidden = false; done.classList.remove("lit");
     setTimeout(function () { done.classList.add("lit"); }, 60);
-    lampBoost = 1.6; buzz([14, 50, 22]);                       /* the cabins on the hillside glow brighter for a moment */
+    lampBoost = 1.6;                       /* the cabins on the hillside glow brighter for a moment */
   });
   var done = document.getElementById("done");
   function backToForm() { done.hidden = true; form.hidden = false; }
   document.getElementById("again").addEventListener("click", backToForm);
-  form.querySelectorAll('input[name="kisi"]').forEach(function (r) { r.addEventListener("change", function () { buzz(6); }); });
 })();
 </script>
 </body>
